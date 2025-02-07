@@ -50,3 +50,4 @@ desktop.ini
 # AWS-specific files
 .env  # Environment variables (e.g., containing AWS credentials)
 *.zip  # Deployment packages
+.aws-sam
