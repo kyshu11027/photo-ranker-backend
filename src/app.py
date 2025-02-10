@@ -6,12 +6,12 @@ from botocore.exceptions import ClientError
 import time
 
 # Initialize the S3 client
-s3_client = boto3.client('s3')
-BUCKET_NAME = os.environ['S3_BUCKET_NAME']
+s3_client = boto3.client('s3', 'us-east-1')
+BUCKET_NAME = os.environ.get('S3_BUCKET_NAME', 'NONE')
 
 # Initialize DynamoDB client
-dynamodb = boto3.client('dynamodb')
-TABLE_NAME = os.environ['DYNAMODB_TABLE_NAME']
+dynamodb = boto3.client('dynamodb', 'us-east-1')
+TABLE_NAME = os.environ.get('DYNAMODB_TABLE_NAME', 'NONE')
 
 def create_new_session_handler(event, context):
     # Log the entire event for debugging
