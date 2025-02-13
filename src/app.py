@@ -5,20 +5,37 @@ from uuid import uuid4
 from botocore.exceptions import ClientError
 import time
 
-# Initialize the S3 client
-s3_client = boto3.client('s3', 'us-east-1')
-BUCKET_NAME = os.environ.get('S3_BUCKET_NAME', 'NONE')
+def get_aws_clients():
+    """Get AWS clients with credentials from environment variables"""
+    access_key_id = os.environ.get("AWS_ACCESS_KEY_ID", "NONE")
+    secret_key = os.environ.get("AWS_SECRET_ACCESS_KEY", "NONE")
+    
+    s3_client = boto3.client('s3', 
+        region_name='us-east-1', 
+        aws_access_key_id=access_key_id,
+        aws_secret_access_key=secret_key
+    )
+    
+    dynamodb = boto3.client('dynamodb', 
+        region_name='us-east-1',
+        aws_access_key_id=access_key_id,
+        aws_secret_access_key=secret_key
+    )
+    
+    return s3_client, dynamodb
 
-# Initialize DynamoDB client
-dynamodb = boto3.client('dynamodb', 'us-east-1')
-TABLE_NAME = os.environ.get('DYNAMODB_TABLE_NAME', 'NONE')
-
-def create_new_session_handler(event, context):
+def create_new_session_handler(event, context, s3_client=None, dynamodb=None):
+    if s3_client is None or dynamodb is None:
+        s3_client, dynamodb = get_aws_clients()
+    
+    BUCKET_NAME = os.environ.get('S3_BUCKET_NAME', 'NONE')
+    TABLE_NAME = os.environ.get('DYNAMODB_TABLE_NAME', 'NONE')
+    
     # Log the entire event for debugging
     print("Received event:", json.dumps(event))
     
     # Get the body of the request
-    try:
+    try: 
         body = json.loads(event['body'])
     except KeyError:
         return {
@@ -32,42 +49,42 @@ def create_new_session_handler(event, context):
     content_type = headers.get('Content-Type', '')
     image_ids = []
     item = {
-        'sessionId': {'S': session_id},  # Specify the type as String
-        'images': {'M': {}},  # Initialize as a list
+        'sessionId': {'S': session_id},
+        'images': {'M': {}},
         'expirationTime': {'N': str(int(time.time()) + 172800)},
     }
+    
     for i in range(num_images):
-        image_id = f"{session_id}-image-{i}"  # Adjust filename as needed    
+        image_id = f"{session_id}-image-{i}"
         try:
-            # Generate a presigned URL for a PUT operation
-            presigned_url = s3_client.generate_presigned_url('put_object', Params={'Bucket': BUCKET_NAME, 'Key': image_id}, ExpiresIn=3600)
+            presigned_url = s3_client.generate_presigned_url('put_object', 
+                Params={'Bucket': BUCKET_NAME, 'Key': image_id}, 
+                ExpiresIn=3600)
             image_ids.append({
                 'id': image_id,
                 'url': presigned_url
             })
         except Exception as e:
             return {
-            'statusCode' : 500,
-            'body': json.dumps(f'Error creating presigned url: {str(e)}')
-        }
+                'statusCode': 500,
+                'body': json.dumps(f'Error creating presigned url: {str(e)}')
+            }
         
         item['images']['M'][image_id] = {
             'M': {
-                'rankings' : {
-                    'L' : []
+                'rankings': {
+                    'L': []
                 }
             }
         }
 
-
     try:
-        response = dynamodb.put_item(TableName = TABLE_NAME, Item = item)
+        response = dynamodb.put_item(TableName=TABLE_NAME, Item=item)
     except Exception as e:
         return {
-            'statusCode' : 500,
+            'statusCode': 500,
             'body': json.dumps(f'Error uploading item {session_id}: {str(e)}')
         }
-
 
     return {
         'statusCode': 200,
@@ -78,8 +95,14 @@ def create_new_session_handler(event, context):
     }
 
 
-def get_session_data_handler(event, context):
-    print('received event ' + json.dumps(event))
+def get_session_data_handler(event, context, s3_client=None, dynamodb=None):
+    if s3_client is None or dynamodb is None:
+        s3_client, dynamodb = get_aws_clients()
+    
+    BUCKET_NAME = os.environ.get('S3_BUCKET_NAME', 'NONE')
+    TABLE_NAME = os.environ.get('DYNAMODB_TABLE_NAME', 'NONE')
+    
+    print('Received event ' + json.dumps(event))
     sessionId = event.get("queryStringParameters", {}).get("sessionId")
 
     if not sessionId:
@@ -135,7 +158,12 @@ def get_session_data_handler(event, context):
         }
 
 
-def update_session_handler(event, context):
+def update_session_handler(event, context, s3_client=None, dynamodb=None):
+    if s3_client is None or dynamodb is None:
+        s3_client, dynamodb = get_aws_clients()
+
+    BUCKET_NAME = os.environ.get('S3_BUCKET_NAME', 'NONE')
+    TABLE_NAME = os.environ.get('DYNAMODB_TABLE_NAME', 'NONE')
     # Extract sessionId, imageId, and newRanking from the event
     body = json.loads(event['body'])
     sessionId = body.get('sessionId')
