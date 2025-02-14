@@ -19,6 +19,6 @@ Before you begin, ensure you have the following installed on your local machine:
 
 Run the command below:
 
-```
+``` bash
 pytest
 ```
