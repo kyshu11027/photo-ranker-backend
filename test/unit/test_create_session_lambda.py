@@ -3,7 +3,6 @@ import os
 import moto
 from boto3 import resource, client
 from unittest import TestCase
-import pytest
 import json
 
 # Add the directory containing your lambda function to the Python path
@@ -31,7 +30,6 @@ class TestCreateSession(TestCase):
         self.test_ddb_table_name = "unit_test_photo_ranker_ddb"
         self.test_access_key = "unit_test_access_key"
         self.test_secret_key = "unit_test_secret_key"
-
         # Set environment variables
         os.environ["DYNAMODB_TABLE_NAME"] = self.test_ddb_table_name
         os.environ["S3_BUCKET_NAME"] = self.test_s3_bucket_name
@@ -80,7 +78,6 @@ class TestCreateSession(TestCase):
             url = image_id.get('url', '')
             self.assertTrue(session_id in id)
             self.assertTrue("https://" in url)
-
 
         # Verify item was actually created in DynamoDB
         try:
