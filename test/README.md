@@ -1,6 +1,6 @@
 # AWS Lambda Tests
 
-This subdirectory contains testing for lambda functions
+This subdirectory contains testing for lambda functions.
 
 ---
 
