@@ -51,7 +51,6 @@ class TestCreateSession(TestCase):
         self.s3_client = client('s3', region_name=self.region)
         self.s3_client.create_bucket(Bucket=self.test_s3_bucket_name)
 
-    # @pytest.mark.skip(reason="This test is currently under development")
     def test_create_session_in_ddb(self) -> None:
         """
         Verify given correct parameters, the document will be written to S3 with proper contents.

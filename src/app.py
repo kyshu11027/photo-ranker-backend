@@ -45,8 +45,6 @@ def create_new_session_handler(event, context, s3_client=None, dynamodb=None):
 
     num_images = body.get('numImages', 0)
     session_id = str(uuid4())
-    headers = event.get('headers', {})
-    content_type = headers.get('Content-Type', '')
     image_ids = []
     item = {
         'sessionId': {'S': session_id},
@@ -79,7 +77,7 @@ def create_new_session_handler(event, context, s3_client=None, dynamodb=None):
         }
 
     try:
-        response = dynamodb.put_item(TableName=TABLE_NAME, Item=item)
+        dynamodb.put_item(TableName=TABLE_NAME, Item=item)
     except Exception as e:
         return {
             'statusCode': 500,

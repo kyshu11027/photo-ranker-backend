@@ -53,5 +53,8 @@ desktop.ini
 
 # Terraform-specific files
 .terraform/
-terraform.*/
+terraform.tfstate*
+terraform.tfstate.backup
+*.tfplan
+
 
