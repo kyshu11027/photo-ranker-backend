@@ -34,7 +34,6 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
           aws-region: us-east-2
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
-          role-session-name: photo-ranker-terraform-session-dev
 
       # Install the latest version of Terraform CLI and configure the Terraform CLI configuration file with a Terraform Cloud user API token
       - name: Setup Terraform
