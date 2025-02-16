@@ -24,6 +24,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Change directory to terraform directory
+        run: cd terraform
+
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
@@ -42,7 +45,7 @@ jobs:
         run: terraform workspace select dev || terraform workspace new dev
       # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
       - name: Terraform Init
-        run: terraform init -backend-config="key=terraform/dev/terrform.tfstate"
+        run: terraform init -backend-config="key=terraform/dev/terraform.tfstate"
 
       # Checks that all Terraform configuration files adhere to a canonical format
       - name: Terraform Format
