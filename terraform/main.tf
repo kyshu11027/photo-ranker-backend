@@ -9,7 +9,7 @@ terraform {
   backend "s3" {
     bucket = "photo-ranker-terraform-state"
     region = "us-east-2"
-    key = "terraform/dev/terraform.tfstate"
+    key = "terraform/terraform.tfstate"
     encrypt = true
     dynamodb_table = "photo-ranker-terraform-lock"
   }
