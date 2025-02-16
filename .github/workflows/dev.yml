@@ -36,7 +36,6 @@ jobs:
           aws-region: us-east-2
           role-duration-seconds: 1200
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
-          role-session-name: photo-ranker-session-prod
 
       - name: Check AWS Credentials
         run: |
