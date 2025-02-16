@@ -10,9 +10,12 @@ permissions:
 
 jobs:
   terraform:
-    name: "Terraform"
+    name: "Terraform Dev"
     runs-on: ubuntu-latest
-    environment: production
+    environment: dev
+    defaults:
+      run:
+        working-directory: ./terraform
 
     # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
     defaults:
@@ -20,12 +23,12 @@ jobs:
         shell: bash
 
     steps:
+      # TODO: zip up src file and place in terraform directory
+      # run terraform in terraform/ working directory
+
       # Checkout the repository to the GitHub Actions runner
       - name: Checkout
         uses: actions/checkout@v4
-
-      - name: Change directory to terraform directory
-        run: cd terraform
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
