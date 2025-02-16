@@ -16,6 +16,5 @@ terraform {
   required_version = ">= 1.2.0"
 }
 provider "aws" {
-  region  = "us-east-2"
-  profile = "photo-ranker-terraform"
+  region = "us-east-2"
 }
