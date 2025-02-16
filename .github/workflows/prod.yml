@@ -1,5 +1,9 @@
 name: "Terraform Prod"
 
+on:
+  push:
+  pull_request:
+
 permissions:
   contents: read
 

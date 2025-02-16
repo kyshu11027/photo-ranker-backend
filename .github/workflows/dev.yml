@@ -13,14 +13,12 @@ jobs:
     name: "Terraform Dev"
     runs-on: ubuntu-latest
     environment: dev
-    defaults:
-      run:
-        working-directory: ./terraform
 
     # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
     defaults:
       run:
         shell: bash
+        working-directory: ./terraform
 
     steps:
       # TODO: zip up src file and place in terraform directory
