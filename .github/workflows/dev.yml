@@ -31,7 +31,6 @@ jobs:
     defaults:
       run:
         shell: bash
-        working-directory: ./terraform
 
     steps:
       # TODO: zip up src file and place in terraform directory
@@ -40,6 +39,17 @@ jobs:
       # Checkout the repository to the GitHub Actions runner
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.9"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest
 
       - name: Run tests
         run: pytest
@@ -70,20 +80,26 @@ jobs:
 
       - name: Terraform Init
         run: terraform init
+        working-directory: ./terraform
 
       - name: Set Terraform Workspace
         run: terraform workspace select dev || terraform workspace new dev
+        working-directory: ./terraform
+
       # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
 
       # Checks that all Terraform configuration files adhere to a canonical format
       - name: Terraform Format
         run: terraform fmt -check
+        working-directory: ./terraform
 
       # Generates an execution plan for Terraform
       - name: Terraform Plan
         run: terraform plan -input=false
+        working-directory: ./terraform
 
         # On push to "main", build or change infrastructure according to Terraform configuration files
         # Note: It is recommended to set up a required "strict" status check in your repository for "Terraform Cloud". See the documentation on "strict" required status checks for more information: https://help.github.com/en/github/administering-a-repository/types-of-required-status-checks
       - name: Terraform Apply
         run: terraform apply -auto-approve -input=false
+        working-directory: ./terraform
