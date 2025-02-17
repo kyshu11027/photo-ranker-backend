@@ -36,7 +36,7 @@ resource "aws_iam_role_policy_attachment" "session_images" {
 }
 
 resource "aws_iam_policy" "dynamodb" {
-  name = "photo-ranker-dynamodb-policy-${terraform.workspace}"
+  name        = "photo-ranker-dynamodb-policy-${terraform.workspace}"
   description = "Allows photo-ranker lambda functions to access the dynamodb resource"
   policy = jsonencode({
     Version = "2012-10-17"
@@ -53,8 +53,8 @@ resource "aws_iam_policy" "dynamodb" {
   })
 }
 
-resource "aws_iam_role_policy_attachment" "session_items"{
-  role = aws_iam_role.lambda_role.name
+resource "aws_iam_role_policy_attachment" "session_items" {
+  role       = aws_iam_role.lambda_role.name
   policy_arn = aws_iam_policy.dynamodb.arn
 }
 
