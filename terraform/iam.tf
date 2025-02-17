@@ -12,8 +12,8 @@ resource "aws_iam_role" "lambda_role" {
   })
 }
 
-resource "aws_iam_policy" "create_session_s3" {
-  name        = "photo-ranker-create-session-policy-${terraform.workspace}"
+resource "aws_iam_policy" "s3" {
+  name        = "photo-ranker-s3-policy-${terraform.workspace}"
   description = "Allows s3 session images bucket to be written to"
   policy = jsonencode({
     Version = "2012-10-17"
@@ -32,7 +32,30 @@ resource "aws_iam_policy" "create_session_s3" {
 
 resource "aws_iam_role_policy_attachment" "session_images" {
   role       = aws_iam_role.lambda_role.name
-  policy_arn = aws_iam_policy.create_session_s3.arn
+  policy_arn = aws_iam_policy.s3.arn
+}
+
+resource "aws_iam_policy" "dynamodb" {
+  name = "photo-ranker-dynamodb-policy-${terraform.workspace}"
+  description = "Allows photo-ranker lambda functions to access the dynamodb resource"
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "dynamodb:PutItem",
+          "dynamodb:GetItem"
+        ]
+        Resource = aws_dynamodb_table.sessions.arn
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "session_items"{
+  role = aws_iam_role.lambda_role.name
+  policy_arn = aws_iam_policy.dynamodb.arn
 }
 
 resource "aws_iam_policy" "logs" {
@@ -46,7 +69,8 @@ resource "aws_iam_policy" "logs" {
         Action = [
           "logs:CreateLogGroup",
           "logs:CreateLogStream",
-        "logs:PutLogEvents"]
+          "logs:PutLogEvents"
+        ]
         Resource = "*"
       }
     ]
