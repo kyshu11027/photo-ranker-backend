@@ -3,7 +3,9 @@ name: "Terraform Dev"
 on:
   push:
     branches: ["main"]
-  pull_request:
+    paths:
+      - "src/**"
+      - "test/**"
 
 permissions:
   contents: read
@@ -27,6 +29,14 @@ jobs:
       # Checkout the repository to the GitHub Actions runner
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Run tests
+        run: pytest
+        working-directory: ./test
+
+      - name: Zip src files and place in terraform directory
+        run: zip -r terraform/src.zip src
+        working-directory: ./
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
