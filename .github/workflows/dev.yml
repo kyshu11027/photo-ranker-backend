@@ -53,7 +53,6 @@ jobs:
 
       - name: Run tests
         run: pytest
-        working-directory: ./test
 
       - name: Zip src files and place in terraform directory
         run: zip -r terraform/src.zip src
