@@ -48,8 +48,9 @@ Thumbs.db
 desktop.ini
 
 # AWS-specific files
-.env  # Environment variables (e.g., containing AWS credentials)
-*.zip  # Deployment packages
+.env
+*.zip 
+src.zip
 
 # Terraform-specific files
 .terraform/
