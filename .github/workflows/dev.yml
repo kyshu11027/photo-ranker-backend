@@ -25,7 +25,7 @@ jobs:
   terraform:
     name: "Terraform Dev"
     runs-on: ubuntu-latest
-    environment: dev
+    environment: development
 
     # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
     defaults:
@@ -33,9 +33,6 @@ jobs:
         shell: bash
 
     steps:
-      # TODO: zip up src file and place in terraform directory
-      # run terraform in terraform/ working directory
-
       # Checkout the repository to the GitHub Actions runner
       - name: Checkout
         uses: actions/checkout@v4
@@ -56,7 +53,6 @@ jobs:
 
       - name: Zip src files and place in terraform directory
         run: zip -r terraform/src.zip src
-        working-directory: ./
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
@@ -68,8 +64,7 @@ jobs:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
 
       - name: Check AWS Credentials
-        run: |
-          aws sts get-caller-identity
+        run: aws sts get-caller-identity
 
       # Install the latest version of Terraform CLI and configure the Terraform CLI configuration file with a Terraform Cloud user API token
       - name: Setup Terraform
