@@ -76,13 +76,45 @@ resource "aws_api_gateway_deployment" "photo_ranker_api_deployment" {
   ]
 
   rest_api_id = aws_api_gateway_rest_api.photo_ranker_api.id
+
+  triggers = {
+    redeployment = sha1(jsonencode([
+      aws_api_gateway_method.create_session_method,
+      aws_api_gateway_method.update_session_method,
+      aws_api_gateway_method.get_session_method,
+      aws_api_gateway_integration.create_session_lambda_integration,
+      aws_api_gateway_integration.update_session_lambda_integration,
+      aws_api_gateway_integration.get_session_lambda_integration
+    ]))
+  }
 }
 
+resource "aws_api_gateway_stage" "photo_ranker_api_stage" {
+  deployment_id = aws_api_gateway_deployment.photo_ranker_api_deployment.id
+  rest_api_id   = aws_api_gateway_rest_api.photo_ranker_api.id
+  stage_name    = "photo-ranker-api-${terraform.workspace}"
+}
+
+
 # Give lambda permissions to API gateway
-resource "aws_lambda_permission" "api_gateway_invoke" {
+resource "aws_lambda_permission" "api_gateway_invoke_create_session" {
   statement_id  = "AllowExecutionFromAPIGateway"
   action        = "lambda:InvokeFunction"
   function_name = aws_lambda_function.create_session.function_name
+  principal     = "apigateway.amazonaws.com"
+  source_arn    = "${aws_api_gateway_rest_api.photo_ranker_api.execution_arn}/*/*"
+}
+resource "aws_lambda_permission" "api_gateway_invoke_update_session" {
+  statement_id  = "AllowExecutionFromAPIGateway"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.update_session.function_name
+  principal     = "apigateway.amazonaws.com"
+  source_arn    = "${aws_api_gateway_rest_api.photo_ranker_api.execution_arn}/*/*"
+}
+resource "aws_lambda_permission" "api_gateway_invoke_get_session" {
+  statement_id  = "AllowExecutionFromAPIGateway"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.get_session.function_name
   principal     = "apigateway.amazonaws.com"
   source_arn    = "${aws_api_gateway_rest_api.photo_ranker_api.execution_arn}/*/*"
 }

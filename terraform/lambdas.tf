@@ -5,6 +5,13 @@ resource "aws_lambda_function" "create_session" {
   runtime          = "python3.9"
   filename         = "src.zip"
   source_code_hash = filebase64sha256("src.zip")
+
+  environment {
+    variables = {
+      S3_BUCKET_NAME       = "${aws_s3_bucket.session_images.bucket}"
+      DYNAMODB_TABLE_NAME  = "${aws_dynamodb_table.sessions.name}"
+    }
+  }
 }
 
 resource "aws_lambda_function" "update_session" {
@@ -14,6 +21,13 @@ resource "aws_lambda_function" "update_session" {
   runtime          = "python3.9"
   filename         = "src.zip"
   source_code_hash = filebase64sha256("src.zip")
+
+  environment {
+    variables = {
+      S3_BUCKET_NAME       = "${aws_s3_bucket.session_images.bucket}"
+      DYNAMODB_TABLE_NAME  = "${aws_dynamodb_table.sessions.name}"
+    }
+  }
 }
 
 resource "aws_lambda_function" "get_session" {
@@ -23,4 +37,11 @@ resource "aws_lambda_function" "get_session" {
   runtime          = "python3.9"
   filename         = "src.zip"
   source_code_hash = filebase64sha256("src.zip")
+
+  environment {
+    variables = {
+      S3_BUCKET_NAME       = "${aws_s3_bucket.session_images.bucket}"
+      DYNAMODB_TABLE_NAME  = "${aws_dynamodb_table.sessions.name}"
+    }
+  }
 }
