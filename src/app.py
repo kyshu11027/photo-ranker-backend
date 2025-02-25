@@ -5,28 +5,12 @@ from uuid import uuid4
 from botocore.exceptions import ClientError
 import time
 
-def get_aws_clients():
-    """Get AWS clients with credentials from environment variables"""
-    access_key_id = os.environ.get("AWS_ACCESS_KEY_ID", "NONE")
-    secret_key = os.environ.get("AWS_SECRET_ACCESS_KEY", "NONE")
-    
-    s3_client = boto3.client('s3', 
-        region_name='us-east-1', 
-        aws_access_key_id=access_key_id,
-        aws_secret_access_key=secret_key
-    )
-    
-    dynamodb = boto3.client('dynamodb', 
-        region_name='us-east-1',
-        aws_access_key_id=access_key_id,
-        aws_secret_access_key=secret_key
-    )
-    
-    return s3_client, dynamodb
-
 def create_new_session_handler(event, context, s3_client=None, dynamodb=None):
-    if s3_client is None or dynamodb is None:
-        s3_client, dynamodb = get_aws_clients()
+    if s3_client is None:
+        s3_client = boto3.client('s3')
+
+    if dynamodb is None:
+        dynamodb = boto3.client('dynamodb')
     
     BUCKET_NAME = os.environ.get('S3_BUCKET_NAME', 'NONE')
     TABLE_NAME = os.environ.get('DYNAMODB_TABLE_NAME', 'NONE')
@@ -94,8 +78,11 @@ def create_new_session_handler(event, context, s3_client=None, dynamodb=None):
 
 
 def get_session_data_handler(event, context, s3_client=None, dynamodb=None):
-    if s3_client is None or dynamodb is None:
-        s3_client, dynamodb = get_aws_clients()
+    if s3_client is None:
+        s3_client = boto3.client('s3')
+
+    if dynamodb is None:
+        dynamodb = boto3.client('dynamodb')
     
     BUCKET_NAME = os.environ.get('S3_BUCKET_NAME', 'NONE')
     TABLE_NAME = os.environ.get('DYNAMODB_TABLE_NAME', 'NONE')
@@ -157,8 +144,11 @@ def get_session_data_handler(event, context, s3_client=None, dynamodb=None):
 
 
 def update_session_handler(event, context, s3_client=None, dynamodb=None):
-    if s3_client is None or dynamodb is None:
-        s3_client, dynamodb = get_aws_clients()
+    if s3_client is None:
+        s3_client = boto3.client('s3')
+
+    if dynamodb is None:
+        dynamodb = boto3.client('dynamodb')
 
     BUCKET_NAME = os.environ.get('S3_BUCKET_NAME', 'NONE')
     TABLE_NAME = os.environ.get('DYNAMODB_TABLE_NAME', 'NONE')
