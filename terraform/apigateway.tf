@@ -164,7 +164,7 @@ resource "aws_api_gateway_deployment" "photo_ranker_api_deployment" {
   lifecycle {
     create_before_destroy = true
   }
-  
+
   triggers = {
     redeployment = sha1(jsonencode([
       aws_api_gateway_rest_api.photo_ranker_api.id
