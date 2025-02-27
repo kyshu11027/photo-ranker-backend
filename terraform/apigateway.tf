@@ -174,12 +174,7 @@ resource "aws_api_gateway_deployment" "photo_ranker_api_deployment" {
 
   triggers = {
     redeployment = sha1(jsonencode([
-      aws_api_gateway_method.create_session_method,
-      aws_api_gateway_method.update_session_method,
-      aws_api_gateway_method.get_session_method,
-      aws_api_gateway_integration.create_session_lambda_integration,
-      aws_api_gateway_integration.update_session_lambda_integration,
-      aws_api_gateway_integration.get_session_lambda_integration
+      aws_api_gateway_rest_api.photo_ranker_api.id
     ]))
   }
 }
