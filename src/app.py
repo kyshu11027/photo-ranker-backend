@@ -104,7 +104,7 @@ def create_new_session_handler(event, context, s3_client=None, dynamodb=None):
     }
 
 
-def get_session_data_handler(event, context, s3_client=None, dynamodb=None):
+def get_session_handler(event, context, s3_client=None, dynamodb=None):
     # Get CORS headers
     cors_headers = get_cors_headers(event)
     

@@ -24,7 +24,10 @@ resource "aws_iam_policy" "s3" {
           "s3:PutObject",
           "s3:GetObject"
         ]
-        Resource = aws_s3_bucket.session_images.arn
+        Resource = [
+          aws_s3_bucket.session_images.arn,
+          "${aws_s3_bucket.session_images.arn}/*"
+        ]
       }
     ]
   })

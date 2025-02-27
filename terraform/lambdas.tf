@@ -37,7 +37,7 @@ resource "aws_lambda_function" "update_session" {
 resource "aws_lambda_function" "get_session" {
   function_name    = "photo-ranker-get-session-${terraform.workspace}"
   role             = aws_iam_role.lambda_role.arn
-  handler          = "src/app.update_session_handler"
+  handler          = "src/app.get_session_handler"
   runtime          = "python3.9"
   timeout          = 5
   filename         = "src.zip"
