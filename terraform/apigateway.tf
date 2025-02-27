@@ -40,6 +40,53 @@ resource "aws_api_gateway_method" "get_session_method" {
   authorization = "NONE"
 }
 
+// API Gateway method response
+
+variable "allowed_origins" {
+  type    = list(string)
+  default = ["https://pickpix.vercel.app"]
+}
+
+locals {
+  final_allowed_origins = terraform.workspace == "dev" ? concat(var.allowed_origins, ["http://localhost:3000"]) : var.allowed_origins
+}
+
+resource "aws_api_gateway_method_response" "create_session_response" {
+  rest_api_id = aws_api_gateway_rest_api.photo_ranker_api.id
+  resource_id = aws_api_gateway_resource.create_session_resource.id
+  http_method = aws_api_gateway_method.create_session_method.http_method
+  status_code = "200"
+
+  response_parameters = {
+    "method.response.header.Access-Control-Allow-Origin"  = "\"${join(",", local.final_allowed_origins)}\"",
+    "method.response.header.Access-Control-Allow-Methods" = "POST"
+  }
+}
+
+resource "aws_api_gateway_method_response" "update_session_response" {
+  rest_api_id = aws_api_gateway_rest_api.photo_ranker_api.id
+  resource_id = aws_api_gateway_resource.update_session_resource.id
+  http_method = aws_api_gateway_method.update_session_method.http_method
+  status_code = "200"
+
+  response_parameters = {
+    "method.response.header.Access-Control-Allow-Origin"  = "\"${join(",", local.final_allowed_origins)}\"",
+    "method.response.header.Access-Control-Allow-Methods" = "POST"
+  }
+}
+
+resource "aws_api_gateway_method_response" "get_session_response" {
+  rest_api_id = aws_api_gateway_rest_api.photo_ranker_api.id
+  resource_id = aws_api_gateway_resource.get_session_resource.id
+  http_method = aws_api_gateway_method.get_session_method.http_method
+  status_code = "200"
+
+  response_parameters = {
+    "method.response.header.Access-Control-Allow-Origin"  = "\"${join(",", local.final_allowed_origins)}\"",
+    "method.response.header.Access-Control-Allow-Methods" = "GET"
+  }
+}
+
 // Integrate API gateway
 resource "aws_api_gateway_integration" "create_session_lambda_integration" {
   rest_api_id             = aws_api_gateway_rest_api.photo_ranker_api.id
