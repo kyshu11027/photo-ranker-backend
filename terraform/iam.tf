@@ -48,7 +48,8 @@ resource "aws_iam_policy" "dynamodb" {
         Effect = "Allow"
         Action = [
           "dynamodb:PutItem",
-          "dynamodb:GetItem"
+          "dynamodb:GetItem",
+          "dynamodb:UpdateItem"
         ]
         Resource = aws_dynamodb_table.sessions.arn
       }
