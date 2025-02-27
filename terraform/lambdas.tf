@@ -11,6 +11,7 @@ resource "aws_lambda_function" "create_session" {
     variables = {
       S3_BUCKET_NAME      = "${aws_s3_bucket.session_images.bucket}"
       DYNAMODB_TABLE_NAME = "${aws_dynamodb_table.sessions.name}"
+      TERRAFORM_WORKSPACE = "${terraform.workspace}"
     }
   }
 }
@@ -28,6 +29,7 @@ resource "aws_lambda_function" "update_session" {
     variables = {
       S3_BUCKET_NAME      = "${aws_s3_bucket.session_images.bucket}"
       DYNAMODB_TABLE_NAME = "${aws_dynamodb_table.sessions.name}"
+      TERRAFORM_WORKSPACE = "${terraform.workspace}"
     }
   }
 }
@@ -45,6 +47,7 @@ resource "aws_lambda_function" "get_session" {
     variables = {
       S3_BUCKET_NAME      = "${aws_s3_bucket.session_images.bucket}"
       DYNAMODB_TABLE_NAME = "${aws_dynamodb_table.sessions.name}"
+      TERRAFORM_WORKSPACE = "${terraform.workspace}"
     }
   }
 }

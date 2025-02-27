@@ -5,7 +5,30 @@ from uuid import uuid4
 from botocore.exceptions import ClientError
 import time
 
+def get_cors_headers(event):
+    # Get the origin from the request
+    origin = event.get('headers', {}).get('origin') or event.get('headers', {}).get('Origin')
+    
+    # Set allowed origins based on environment
+    workspace = os.environ.get('TERRAFORM_WORKSPACE', 'dev')
+    allowed_origins = ["https://pickpix.vercel.app"]
+    if workspace == 'dev':
+        allowed_origins.append("http://localhost:3000")
+    
+    # Use the requesting origin if it's allowed, otherwise use default
+    cors_origin = origin if origin in allowed_origins else allowed_origins[0]
+    
+    return {
+        "Access-Control-Allow-Origin": cors_origin,
+        "Access-Control-Allow-Headers": "Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token",
+        "Access-Control-Allow-Methods": "GET,POST,OPTIONS",
+        "Access-Control-Allow-Credentials": "true"
+    }
+
 def create_new_session_handler(event, context, s3_client=None, dynamodb=None):
+    # Get CORS headers
+    cors_headers = get_cors_headers(event)
+    
     if s3_client is None:
         s3_client = boto3.client('s3')
 
@@ -24,6 +47,7 @@ def create_new_session_handler(event, context, s3_client=None, dynamodb=None):
     except KeyError:
         return {
             'statusCode': 400,
+            'headers': cors_headers,
             'body': json.dumps('Missing body in request')
         }
 
@@ -49,6 +73,7 @@ def create_new_session_handler(event, context, s3_client=None, dynamodb=None):
         except Exception as e:
             return {
                 'statusCode': 500,
+                'headers': cors_headers,
                 'body': json.dumps(f'Error creating presigned url: {str(e)}')
             }
         
@@ -65,11 +90,13 @@ def create_new_session_handler(event, context, s3_client=None, dynamodb=None):
     except Exception as e:
         return {
             'statusCode': 500,
+            'headers': cors_headers,
             'body': json.dumps(f'Error uploading item {session_id}: {str(e)}')
         }
 
     return {
         'statusCode': 200,
+        'headers': cors_headers,
         'body': json.dumps({
             'sessionId': session_id,
             'imageIds': image_ids,
@@ -78,6 +105,9 @@ def create_new_session_handler(event, context, s3_client=None, dynamodb=None):
 
 
 def get_session_data_handler(event, context, s3_client=None, dynamodb=None):
+    # Get CORS headers
+    cors_headers = get_cors_headers(event)
+    
     if s3_client is None:
         s3_client = boto3.client('s3')
 
@@ -93,6 +123,7 @@ def get_session_data_handler(event, context, s3_client=None, dynamodb=None):
     if not sessionId:
         return {
             "statusCode": 400,
+            "headers": cors_headers,
             "body": json.dumps({"error": "no sessionId available"})
         }
 
@@ -104,8 +135,9 @@ def get_session_data_handler(event, context, s3_client=None, dynamodb=None):
 
         if 'Item' not in response:
             return {
-                'statusCode' : 404,
-                'body' : json.dumps({'error' : 'no item found'})
+                'statusCode': 404,
+                'headers': cors_headers,
+                'body': json.dumps({'error': 'no item found'})
             }
 
         # Function to convert DynamoDB ranking format to a list of numbers
@@ -131,19 +163,24 @@ def get_session_data_handler(event, context, s3_client=None, dynamodb=None):
             })
         
         return {
-            "statusCode" : 200,
-            'body' : json.dumps(result)
+            "statusCode": 200,
+            "headers": cors_headers,
+            'body': json.dumps(result)
         }
 
     except ClientError as e:
         print(f"Error fetching image from S3 or DynamoDB: {e}")
         return {
             "statusCode": 500,
+            "headers": cors_headers,
             "body": json.dumps({"error": "Internal Server Error"})
         }
 
 
 def update_session_handler(event, context, s3_client=None, dynamodb=None):
+    # Get CORS headers
+    cors_headers = get_cors_headers(event)
+    
     if s3_client is None:
         s3_client = boto3.client('s3')
 
@@ -188,11 +225,12 @@ def update_session_handler(event, context, s3_client=None, dynamodb=None):
         
         return {
             'statusCode': 200,
+            'headers': cors_headers,
             'body': json.dumps(update_response)
         }
     except Exception as e:
         return {
             'statusCode': 500,
+            'headers': cors_headers,
             'body': json.dumps(f"Failed to update ranking: {str(e)}")
         }
-
