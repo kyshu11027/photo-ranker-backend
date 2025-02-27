@@ -23,7 +23,6 @@ resource "aws_s3_bucket_cors_configuration" "session_images_cors" {
 
   cors_rule {
     allowed_origins = terraform.workspace == "dev" ? ["https://pickpix.vercel.app", "http://localhost:3000"] : ["https://pickpix.vercel.app"]
-    
     allowed_methods = ["GET", "PUT", "POST", "DELETE", "HEAD"]
     allowed_headers = ["*"]
     expose_headers  = ["ETag"]
