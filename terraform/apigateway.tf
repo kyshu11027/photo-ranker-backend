@@ -20,7 +20,12 @@ resource "aws_api_gateway_resource" "get_session_resource" {
   path_part   = "get-session"
 }
 
-// API Gateway method
+locals {
+  allowed_origins = terraform.workspace == "dev" ? "https://pickpix.vercel.app,http://localhost:3000" : "https://pickpix.vercel.app"
+  allowed_headers = "Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token"
+}
+
+// Regular Methods
 resource "aws_api_gateway_method" "create_session_method" {
   rest_api_id   = aws_api_gateway_rest_api.photo_ranker_api.id
   resource_id   = aws_api_gateway_resource.create_session_resource.id
@@ -40,11 +45,27 @@ resource "aws_api_gateway_method" "get_session_method" {
   authorization = "NONE"
 }
 
-// API Gateway method response
-locals {
-  allowed_origins = terraform.workspace == "dev" ? "'https://pickpix.vercel.app,http://localhost:3000'" : "'https://pickpix.vercel.app'"
+// CORS OPTIONS methods
+resource "aws_api_gateway_method" "create_session_options" {
+  rest_api_id   = aws_api_gateway_rest_api.photo_ranker_api.id
+  resource_id   = aws_api_gateway_resource.create_session_resource.id
+  http_method   = "OPTIONS"
+  authorization = "NONE"
+}
+resource "aws_api_gateway_method" "update_session_options" {
+  rest_api_id   = aws_api_gateway_rest_api.photo_ranker_api.id
+  resource_id   = aws_api_gateway_resource.update_session_resource.id
+  http_method   = "OPTIONS"
+  authorization = "NONE"
+}
+resource "aws_api_gateway_method" "get_session_options" {
+  rest_api_id   = aws_api_gateway_rest_api.photo_ranker_api.id
+  resource_id   = aws_api_gateway_resource.get_session_resource.id
+  http_method   = "OPTIONS"
+  authorization = "NONE"
 }
 
+// Regular Method Responses
 resource "aws_api_gateway_method_response" "create_session_response" {
   rest_api_id = aws_api_gateway_rest_api.photo_ranker_api.id
   resource_id = aws_api_gateway_resource.create_session_resource.id
@@ -52,11 +73,12 @@ resource "aws_api_gateway_method_response" "create_session_response" {
   status_code = "200"
 
   response_parameters = {
-    "method.response.header.Access-Control-Allow-Origin"  = true
-    "method.response.header.Access-Control-Allow-Methods" = true
+    "method.response.header.Access-Control-Allow-Origin"      = true
+    "method.response.header.Access-Control-Allow-Methods"     = true
+    "method.response.header.Access-Control-Allow-Headers"     = true
+    "method.response.header.Access-Control-Allow-Credentials" = true
   }
 }
-
 resource "aws_api_gateway_method_response" "update_session_response" {
   rest_api_id = aws_api_gateway_rest_api.photo_ranker_api.id
   resource_id = aws_api_gateway_resource.update_session_resource.id
@@ -64,11 +86,12 @@ resource "aws_api_gateway_method_response" "update_session_response" {
   status_code = "200"
 
   response_parameters = {
-    "method.response.header.Access-Control-Allow-Origin"  = true
-    "method.response.header.Access-Control-Allow-Methods" = true
+    "method.response.header.Access-Control-Allow-Origin"      = true
+    "method.response.header.Access-Control-Allow-Methods"     = true
+    "method.response.header.Access-Control-Allow-Headers"     = true
+    "method.response.header.Access-Control-Allow-Credentials" = true
   }
 }
-
 resource "aws_api_gateway_method_response" "get_session_response" {
   rest_api_id = aws_api_gateway_rest_api.photo_ranker_api.id
   resource_id = aws_api_gateway_resource.get_session_resource.id
@@ -76,14 +99,55 @@ resource "aws_api_gateway_method_response" "get_session_response" {
   status_code = "200"
 
   response_parameters = {
-    "method.response.header.Access-Control-Allow-Origin"  = true
-    "method.response.header.Access-Control-Allow-Methods" = true
+    "method.response.header.Access-Control-Allow-Origin"      = true
+    "method.response.header.Access-Control-Allow-Methods"     = true
+    "method.response.header.Access-Control-Allow-Headers"     = true
+    "method.response.header.Access-Control-Allow-Credentials" = true
   }
 }
 
+// OPTIONS Method Responses
+resource "aws_api_gateway_method_response" "create_session_options_response" {
+  rest_api_id = aws_api_gateway_rest_api.photo_ranker_api.id
+  resource_id = aws_api_gateway_resource.create_session_resource.id
+  http_method = aws_api_gateway_method.create_session_options.http_method
+  status_code = "200"
 
+  response_parameters = {
+    "method.response.header.Access-Control-Allow-Origin"      = true
+    "method.response.header.Access-Control-Allow-Methods"     = true
+    "method.response.header.Access-Control-Allow-Headers"     = true
+    "method.response.header.Access-Control-Allow-Credentials" = true
+  }
+}
+resource "aws_api_gateway_method_response" "update_session_options_response" {
+  rest_api_id = aws_api_gateway_rest_api.photo_ranker_api.id
+  resource_id = aws_api_gateway_resource.update_session_resource.id
+  http_method = aws_api_gateway_method.update_session_options.http_method
+  status_code = "200"
 
-// Integrate API gateway
+  response_parameters = {
+    "method.response.header.Access-Control-Allow-Origin"      = true
+    "method.response.header.Access-Control-Allow-Methods"     = true
+    "method.response.header.Access-Control-Allow-Headers"     = true
+    "method.response.header.Access-Control-Allow-Credentials" = true
+  }
+}
+resource "aws_api_gateway_method_response" "get_session_options_response" {
+  rest_api_id = aws_api_gateway_rest_api.photo_ranker_api.id
+  resource_id = aws_api_gateway_resource.get_session_resource.id
+  http_method = aws_api_gateway_method.get_session_options.http_method
+  status_code = "200"
+
+  response_parameters = {
+    "method.response.header.Access-Control-Allow-Origin"      = true
+    "method.response.header.Access-Control-Allow-Methods"     = true
+    "method.response.header.Access-Control-Allow-Headers"     = true
+    "method.response.header.Access-Control-Allow-Credentials" = true
+  }
+}
+
+// Regular Lambda Integrations
 resource "aws_api_gateway_integration" "create_session_lambda_integration" {
   rest_api_id             = aws_api_gateway_rest_api.photo_ranker_api.id
   resource_id             = aws_api_gateway_resource.create_session_resource.id
@@ -100,48 +164,88 @@ resource "aws_api_gateway_integration" "update_session_lambda_integration" {
   type                    = "AWS_PROXY"
   uri                     = aws_lambda_function.update_session.invoke_arn
 }
-
 resource "aws_api_gateway_integration" "get_session_lambda_integration" {
   rest_api_id             = aws_api_gateway_rest_api.photo_ranker_api.id
   resource_id             = aws_api_gateway_resource.get_session_resource.id
   http_method             = aws_api_gateway_method.get_session_method.http_method
-  integration_http_method = "GET"
+  integration_http_method = "POST" // Lambda always needs POST for invocation
   type                    = "AWS_PROXY"
   uri                     = aws_lambda_function.get_session.invoke_arn
 }
 
-// Integration responses
-resource "aws_api_gateway_integration_response" "create_session_integration_response" {
+// OPTIONS Mock Integrations
+resource "aws_api_gateway_integration" "create_session_options_integration" {
   rest_api_id = aws_api_gateway_rest_api.photo_ranker_api.id
   resource_id = aws_api_gateway_resource.create_session_resource.id
-  http_method = aws_api_gateway_method.create_session_method.http_method
-  status_code = aws_api_gateway_method_response.create_session_response.status_code
-
-  response_parameters = {
-    "method.response.header.Access-Control-Allow-Origin"  = local.allowed_origins,
-    "method.response.header.Access-Control-Allow-Methods" = "'POST'"
+  http_method = aws_api_gateway_method.create_session_options.http_method
+  type        = "MOCK"
+  request_templates = {
+    "application/json" = jsonencode({
+      statusCode = 200
+    })
   }
 }
-resource "aws_api_gateway_integration_response" "update_session_integration_response" {
+resource "aws_api_gateway_integration" "update_session_options_integration" {
   rest_api_id = aws_api_gateway_rest_api.photo_ranker_api.id
   resource_id = aws_api_gateway_resource.update_session_resource.id
-  http_method = aws_api_gateway_method.update_session_method.http_method
-  status_code = aws_api_gateway_method_response.update_session_response.status_code
-
-  response_parameters = {
-    "method.response.header.Access-Control-Allow-Origin"  = local.allowed_origins,
-    "method.response.header.Access-Control-Allow-Methods" = "'POST'"
+  http_method = aws_api_gateway_method.update_session_options.http_method
+  type        = "MOCK"
+  request_templates = {
+    "application/json" = jsonencode({
+      statusCode = 200
+    })
   }
 }
-resource "aws_api_gateway_integration_response" "get_session_integration_response" {
+resource "aws_api_gateway_integration" "get_session_options_integration" {
   rest_api_id = aws_api_gateway_rest_api.photo_ranker_api.id
   resource_id = aws_api_gateway_resource.get_session_resource.id
-  http_method = aws_api_gateway_method.get_session_method.http_method
-  status_code = aws_api_gateway_method_response.get_session_response.status_code
+  http_method = aws_api_gateway_method.get_session_options.http_method
+  type        = "MOCK"
+  request_templates = {
+    "application/json" = jsonencode({
+      statusCode = 200
+    })
+  }
+}
+
+// Integration responses for OPTIONS methods
+resource "aws_api_gateway_integration_response" "create_session_options_integration_response" {
+  rest_api_id = aws_api_gateway_rest_api.photo_ranker_api.id
+  resource_id = aws_api_gateway_resource.create_session_resource.id
+  http_method = aws_api_gateway_method.create_session_options.http_method
+  status_code = aws_api_gateway_method_response.create_session_options_response.status_code
 
   response_parameters = {
-    "method.response.header.Access-Control-Allow-Origin"  = local.allowed_origins,
-    "method.response.header.Access-Control-Allow-Methods" = "'GET'"
+    "method.response.header.Access-Control-Allow-Origin"      = "'${local.allowed_origins}'",
+    "method.response.header.Access-Control-Allow-Methods"     = "'GET,OPTIONS,POST,PUT,DELETE'",
+    "method.response.header.Access-Control-Allow-Headers"     = "'${local.allowed_headers}'",
+    "method.response.header.Access-Control-Allow-Credentials" = "'true'"
+  }
+}
+resource "aws_api_gateway_integration_response" "update_session_options_integration_response" {
+  rest_api_id = aws_api_gateway_rest_api.photo_ranker_api.id
+  resource_id = aws_api_gateway_resource.update_session_resource.id
+  http_method = aws_api_gateway_method.update_session_options.http_method
+  status_code = aws_api_gateway_method_response.update_session_options_response.status_code
+
+  response_parameters = {
+    "method.response.header.Access-Control-Allow-Origin"      = "'${local.allowed_origins}'",
+    "method.response.header.Access-Control-Allow-Methods"     = "'GET,OPTIONS,POST,PUT,DELETE'",
+    "method.response.header.Access-Control-Allow-Headers"     = "'${local.allowed_headers}'",
+    "method.response.header.Access-Control-Allow-Credentials" = "'true'"
+  }
+}
+resource "aws_api_gateway_integration_response" "get_session_options_integration_response" {
+  rest_api_id = aws_api_gateway_rest_api.photo_ranker_api.id
+  resource_id = aws_api_gateway_resource.get_session_resource.id
+  http_method = aws_api_gateway_method.get_session_options.http_method
+  status_code = aws_api_gateway_method_response.get_session_options_response.status_code
+
+  response_parameters = {
+    "method.response.header.Access-Control-Allow-Origin"      = "'${local.allowed_origins}'",
+    "method.response.header.Access-Control-Allow-Methods"     = "'GET,OPTIONS,POST,PUT,DELETE'",
+    "method.response.header.Access-Control-Allow-Headers"     = "'${local.allowed_headers}'",
+    "method.response.header.Access-Control-Allow-Credentials" = "'true'"
   }
 }
 
@@ -149,8 +253,11 @@ resource "aws_api_gateway_integration_response" "get_session_integration_respons
 resource "aws_api_gateway_deployment" "photo_ranker_api_deployment" {
   depends_on = [
     aws_api_gateway_integration.create_session_lambda_integration,
+    aws_api_gateway_integration.update_session_lambda_integration,
     aws_api_gateway_integration.get_session_lambda_integration,
-    aws_api_gateway_integration.update_session_lambda_integration
+    aws_api_gateway_integration.create_session_options_integration,
+    aws_api_gateway_integration.update_session_options_integration,
+    aws_api_gateway_integration.get_session_options_integration
   ]
 
   rest_api_id = aws_api_gateway_rest_api.photo_ranker_api.id
@@ -161,7 +268,13 @@ resource "aws_api_gateway_deployment" "photo_ranker_api_deployment" {
 
   triggers = {
     redeployment = sha1(jsonencode([
-      aws_api_gateway_rest_api.photo_ranker_api.id
+      aws_api_gateway_rest_api.photo_ranker_api.id,
+      aws_api_gateway_method.create_session_method.id,
+      aws_api_gateway_method.update_session_method.id,
+      aws_api_gateway_method.get_session_method.id,
+      aws_api_gateway_method.create_session_options.id,
+      aws_api_gateway_method.update_session_options.id,
+      aws_api_gateway_method.get_session_options.id
     ]))
   }
 }
@@ -171,7 +284,6 @@ resource "aws_api_gateway_stage" "photo_ranker_api_stage" {
   rest_api_id   = aws_api_gateway_rest_api.photo_ranker_api.id
   stage_name    = "photo-ranker-api-${terraform.workspace}"
 }
-
 
 # Give lambda permissions to API gateway
 resource "aws_lambda_permission" "api_gateway_invoke_create_session" {
