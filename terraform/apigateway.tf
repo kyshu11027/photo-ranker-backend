@@ -125,7 +125,7 @@ resource "aws_api_gateway_integration_response" "create_session_integration_resp
 
   response_parameters = {
     "method.response.header.Access-Control-Allow-Origin"  = "\"${join(",", local.final_allowed_origins)}\"",
-    "method.response.header.Access-Control-Allow-Methods" = "POST"
+    "method.response.header.Access-Control-Allow-Methods" = "'POST'"
   }
 }
 resource "aws_api_gateway_integration_response" "update_session_integration_response" {
@@ -136,7 +136,7 @@ resource "aws_api_gateway_integration_response" "update_session_integration_resp
 
   response_parameters = {
     "method.response.header.Access-Control-Allow-Origin"  = "\"${join(",", local.final_allowed_origins)}\"",
-    "method.response.header.Access-Control-Allow-Methods" = "POST"
+    "method.response.header.Access-Control-Allow-Methods" = "'POST'"
   }
 }
 resource "aws_api_gateway_integration_response" "get_session_integration_response" {
@@ -147,7 +147,7 @@ resource "aws_api_gateway_integration_response" "get_session_integration_respons
 
   response_parameters = {
     "method.response.header.Access-Control-Allow-Origin"  = "\"${join(",", local.final_allowed_origins)}\"",
-    "method.response.header.Access-Control-Allow-Methods" = "GET"
+    "method.response.header.Access-Control-Allow-Methods" = "'GET'"
   }
 }
 
@@ -161,6 +161,10 @@ resource "aws_api_gateway_deployment" "photo_ranker_api_deployment" {
 
   rest_api_id = aws_api_gateway_rest_api.photo_ranker_api.id
 
+  lifecycle {
+    create_before_destroy = true
+  }
+  
   triggers = {
     redeployment = sha1(jsonencode([
       aws_api_gateway_rest_api.photo_ranker_api.id
