@@ -128,17 +128,6 @@ resource "aws_api_gateway_integration_response" "create_session_integration_resp
     "method.response.header.Access-Control-Allow-Methods" = "POST"
   }
 }
-resource "aws_api_gateway_integration_response" "create_session_integration_response" {
-  rest_api_id = aws_api_gateway_rest_api.photo_ranker_api.id
-  resource_id = aws_api_gateway_resource.create_session_resource.id
-  http_method = aws_api_gateway_method.create_session_method.http_method
-  status_code = aws_api_gateway_method_response.create_session_response.status_code
-
-  response_parameters = {
-    "method.response.header.Access-Control-Allow-Origin"  = "\"${join(",", local.final_allowed_origins)}\"",
-    "method.response.header.Access-Control-Allow-Methods" = "POST"
-  }
-}
 resource "aws_api_gateway_integration_response" "update_session_integration_response" {
   rest_api_id = aws_api_gateway_rest_api.photo_ranker_api.id
   resource_id = aws_api_gateway_resource.update_session_resource.id
