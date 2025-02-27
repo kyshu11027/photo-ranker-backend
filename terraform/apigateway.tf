@@ -41,14 +41,8 @@ resource "aws_api_gateway_method" "get_session_method" {
 }
 
 // API Gateway method response
-
-variable "allowed_origins" {
-  type    = list(string)
-  default = ["https://pickpix.vercel.app"]
-}
-
 locals {
-  final_allowed_origins = terraform.workspace == "dev" ? concat(var.allowed_origins, ["http://localhost:3000"]) : var.allowed_origins
+  allowed_origins = terraform.workspace == "dev" ? "'https://pickpix.vercel.app,http://localhost:3000'" : "'https://pickpix.vercel.app'"
 }
 
 resource "aws_api_gateway_method_response" "create_session_response" {
@@ -124,7 +118,7 @@ resource "aws_api_gateway_integration_response" "create_session_integration_resp
   status_code = aws_api_gateway_method_response.create_session_response.status_code
 
   response_parameters = {
-    "method.response.header.Access-Control-Allow-Origin"  = "\"${join(",", local.final_allowed_origins)}\"",
+    "method.response.header.Access-Control-Allow-Origin"  = local.allowed_origins,
     "method.response.header.Access-Control-Allow-Methods" = "'POST'"
   }
 }
@@ -135,7 +129,7 @@ resource "aws_api_gateway_integration_response" "update_session_integration_resp
   status_code = aws_api_gateway_method_response.update_session_response.status_code
 
   response_parameters = {
-    "method.response.header.Access-Control-Allow-Origin"  = "\"${join(",", local.final_allowed_origins)}\"",
+    "method.response.header.Access-Control-Allow-Origin"  = local.allowed_origins,
     "method.response.header.Access-Control-Allow-Methods" = "'POST'"
   }
 }
@@ -146,7 +140,7 @@ resource "aws_api_gateway_integration_response" "get_session_integration_respons
   status_code = aws_api_gateway_method_response.get_session_response.status_code
 
   response_parameters = {
-    "method.response.header.Access-Control-Allow-Origin"  = "\"${join(",", local.final_allowed_origins)}\"",
+    "method.response.header.Access-Control-Allow-Origin"  = local.allowed_origins,
     "method.response.header.Access-Control-Allow-Methods" = "'GET'"
   }
 }
