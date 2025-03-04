@@ -19,10 +19,10 @@ resource "aws_security_group" "db_security" {
   name_prefix = "photo-db-sg"
 
   ingress {
-    from_port   = 5432
-    to_port     = 5432
-    protocol    = "tcp"
-    cidr_blocks = ["10.0.0.0/16"]
+    from_port        = 5432
+    to_port          = 5432
+    protocol         = "tcp"
+    cidr_blocks      = ["10.0.0.0/16"]
     ipv6_cidr_blocks = ["2600:1000:a022::/64"]
   }
 }
