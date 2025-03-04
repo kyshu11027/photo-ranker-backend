@@ -9,7 +9,7 @@ resource "aws_db_instance" "photo_ranking_db" {
   max_allocated_storage  = 100
   db_name                = "photoranker"
   username               = "photorankeradmin"
-  password               = "photo@R4nk3r"
+  password               = "photoR4nk3r"
   vpc_security_group_ids = [aws_security_group.db_security.id]
   publicly_accessible    = true
   skip_final_snapshot    = true
