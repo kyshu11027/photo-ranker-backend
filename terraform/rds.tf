@@ -22,7 +22,8 @@ resource "aws_security_group" "db_security" {
     from_port   = 5432
     to_port     = 5432
     protocol    = "tcp"
-    cidr_blocks = ["2600:1000:a022::/64", "10.0.0.0/16"] # Internal VPC access
+    cidr_blocks = ["10.0.0.0/16"]
+    ipv6_cidr_blocks = ["2600:1000:a022::/64"]
   }
 }
  
