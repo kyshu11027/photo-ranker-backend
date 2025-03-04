@@ -1,7 +1,7 @@
 
 
 resource "aws_db_instance" "photo_ranking_db" {
-  identifier             = "photo-ranker-db"
+  identifier             = "photo-ranker-db-${terraform.workspace}"
   engine                 = "postgres"
   engine_version         = "16"
   instance_class         = "db.t3.micro"
