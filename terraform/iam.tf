@@ -71,8 +71,8 @@ resource "aws_iam_policy" "rds" {
     Version = "2012-10-17",
     Statement = [
       {
-        Effect   = "Allow",
-        Action   = [
+        Effect = "Allow",
+        Action = [
           "rds:DescribeDBInstances",
           "rds:DescribeDBClusters",
           "rds-db:connect"
