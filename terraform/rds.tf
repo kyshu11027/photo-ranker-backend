@@ -3,7 +3,7 @@
 resource "aws_db_instance" "photo_ranking_db" {
   identifier             = "photo-ranker-db"
   engine                 = "postgres"
-  engine_version         = "15.5"
+  engine_version         = "17.2-R1"
   instance_class         = "db.t3.micro"
   allocated_storage      = 20
   max_allocated_storage  = 100
