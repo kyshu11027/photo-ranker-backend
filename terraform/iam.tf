@@ -57,9 +57,35 @@ resource "aws_iam_policy" "dynamodb" {
   })
 }
 
+
 resource "aws_iam_role_policy_attachment" "session_items" {
   role       = aws_iam_role.lambda_role.name
   policy_arn = aws_iam_policy.dynamodb.arn
+}
+
+resource "aws_iam_policy" "rds" {
+  name        = "LambdaRDSAccessPolicy"
+  description = "Allows Lambda to access RDS for REST operations"
+
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Effect   = "Allow",
+        Action   = [
+          "rds:DescribeDBInstances",
+          "rds:DescribeDBClusters",
+          "rds-db:connect"
+        ],
+        Resource = "*"
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "lambda_rds_attach" {
+  role       = aws_iam_role.lambda_role.name
+  policy_arn = aws_iam_policy.rds.arn
 }
 
 resource "aws_iam_policy" "logs" {
