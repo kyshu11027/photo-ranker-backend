@@ -61,6 +61,7 @@ class TestCreateSession(TestCase):
             
         test_return_value = create_session_handler(
             event=test_event, 
+            context=None,
             s3_client=self.s3_client,
             dynamodb=self.ddb_client
         )
