@@ -1,7 +1,7 @@
 import boto3
 import json
 import os
-from utils import get_cors_headers
+from src.utils import get_cors_headers
 
 def edit_session_handler(event, s3_client=None, dynamodb=None):
     # Get CORS headers
