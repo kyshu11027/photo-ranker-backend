@@ -1,5 +1,4 @@
 import json
-from aws_lambda_powertools.utilities.validation import validate
 
 class UnitTestUtils():
     
