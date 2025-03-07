@@ -64,7 +64,7 @@ resource "aws_iam_role_policy_attachment" "session_items" {
 }
 
 resource "aws_iam_policy" "rds" {
-  name        = "LambdaRDSAccessPolicy"
+  name        = "photo-ranker-rds-policy-${terraform.workspace}"
   description = "Allows Lambda to access RDS for REST operations"
 
   policy = jsonencode({

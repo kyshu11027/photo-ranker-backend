@@ -1,15 +1,15 @@
 
 
 resource "aws_db_instance" "photo_ranking_db" {
-  identifier             = "photo-ranker-db"
+  identifier             = "photo-ranker-db-${terraform.workspace}"
   engine                 = "postgres"
-  engine_version         = "15.5"
+  engine_version         = "16"
   instance_class         = "db.t3.micro"
   allocated_storage      = 20
   max_allocated_storage  = 100
   db_name                = "photoranker"
   username               = "photorankeradmin"
-  password               = "photo@R4nk3r"
+  password               = "photoR4nk3r"
   vpc_security_group_ids = [aws_security_group.db_security.id]
   publicly_accessible    = true
   skip_final_snapshot    = true
