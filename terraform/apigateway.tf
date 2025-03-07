@@ -144,11 +144,12 @@ resource "aws_api_gateway_method_response" "create_session_options_response" {
   status_code = "200"
 
   response_parameters = {
-    "method.response.header.Access-Control-Allow-Origin"      = true
-    "method.response.header.Access-Control-Allow-Methods"     = true
-    "method.response.header.Access-Control-Allow-Headers"     = true
-    "method.response.header.Access-Control-Allow-Credentials" = true
+    "method.response.header.Access-Control-Allow-Origin"      = "'${local.allowed_origins}'",
+    "method.response.header.Access-Control-Allow-Methods"     = "'GET,OPTIONS,POST,PUT,DELETE'",
+    "method.response.header.Access-Control-Allow-Headers"     = "'${local.allowed_headers}'",
+    "method.response.header.Access-Control-Allow-Credentials" = "'true'"
   }
+
 }
 resource "aws_api_gateway_method_response" "edit_session_options_response" {
   rest_api_id = aws_api_gateway_rest_api.photo_ranker_api.id
@@ -157,11 +158,12 @@ resource "aws_api_gateway_method_response" "edit_session_options_response" {
   status_code = "200"
 
   response_parameters = {
-    "method.response.header.Access-Control-Allow-Origin"      = true
-    "method.response.header.Access-Control-Allow-Methods"     = true
-    "method.response.header.Access-Control-Allow-Headers"     = true
-    "method.response.header.Access-Control-Allow-Credentials" = true
+    "method.response.header.Access-Control-Allow-Origin"      = "'${local.allowed_origins}'",
+    "method.response.header.Access-Control-Allow-Methods"     = "'GET,OPTIONS,POST,PUT,DELETE'",
+    "method.response.header.Access-Control-Allow-Headers"     = "'${local.allowed_headers}'",
+    "method.response.header.Access-Control-Allow-Credentials" = "'true'"
   }
+
 }
 resource "aws_api_gateway_method_response" "get_session_options_response" {
   rest_api_id = aws_api_gateway_rest_api.photo_ranker_api.id
@@ -170,11 +172,12 @@ resource "aws_api_gateway_method_response" "get_session_options_response" {
   status_code = "200"
 
   response_parameters = {
-    "method.response.header.Access-Control-Allow-Origin"      = true
-    "method.response.header.Access-Control-Allow-Methods"     = true
-    "method.response.header.Access-Control-Allow-Headers"     = true
-    "method.response.header.Access-Control-Allow-Credentials" = true
+    "method.response.header.Access-Control-Allow-Origin"      = "'${local.allowed_origins}'",
+    "method.response.header.Access-Control-Allow-Methods"     = "'GET,OPTIONS,POST,PUT,DELETE'",
+    "method.response.header.Access-Control-Allow-Headers"     = "'${local.allowed_headers}'",
+    "method.response.header.Access-Control-Allow-Credentials" = "'true'"
   }
+
 }
 resource "aws_api_gateway_method_response" "delete_session_options_response" {
   rest_api_id = aws_api_gateway_rest_api.photo_ranker_api.id
@@ -183,11 +186,12 @@ resource "aws_api_gateway_method_response" "delete_session_options_response" {
   status_code = "200"
 
   response_parameters = {
-    "method.response.header.Access-Control-Allow-Origin"      = true
-    "method.response.header.Access-Control-Allow-Methods"     = true
-    "method.response.header.Access-Control-Allow-Headers"     = true
-    "method.response.header.Access-Control-Allow-Credentials" = true
+    "method.response.header.Access-Control-Allow-Origin"      = "'${local.allowed_origins}'",
+    "method.response.header.Access-Control-Allow-Methods"     = "'GET,OPTIONS,POST,PUT,DELETE'",
+    "method.response.header.Access-Control-Allow-Headers"     = "'${local.allowed_headers}'",
+    "method.response.header.Access-Control-Allow-Credentials" = "'true'"
   }
+
 }
 
 // Regular Lambda Integrations
@@ -334,7 +338,19 @@ resource "aws_api_gateway_deployment" "photo_ranker_api_deployment" {
     aws_api_gateway_integration.create_session_options_integration,
     aws_api_gateway_integration.edit_session_options_integration,
     aws_api_gateway_integration.get_session_options_integration,
-    aws_api_gateway_integration.delete_session_options_integration
+    aws_api_gateway_integration.delete_session_options_integration,
+    aws_api_gateway_method_response.create_session_response,
+    aws_api_gateway_method_response.edit_session_response,
+    aws_api_gateway_method_response.get_session_response,
+    aws_api_gateway_method_response.delete_session_response,
+    aws_api_gateway_method_response.create_session_options_response,
+    aws_api_gateway_method_response.edit_session_options_response,
+    aws_api_gateway_method_response.get_session_options_response,
+    aws_api_gateway_method_response.delete_session_options_response,
+    aws_api_gateway_integration_response.create_session_options_integration_response,
+    aws_api_gateway_integration_response.edit_session_options_integration_response,
+    aws_api_gateway_integration_response.get_session_options_integration_response,
+    aws_api_gateway_integration_response.delete_session_options_integration_response
   ]
 
   rest_api_id = aws_api_gateway_rest_api.photo_ranker_api.id
@@ -386,7 +402,7 @@ resource "aws_lambda_permission" "api_gateway_invoke_get_session" {
   principal     = "apigateway.amazonaws.com"
   source_arn    = "${aws_api_gateway_rest_api.photo_ranker_api.execution_arn}/*/*"
 }
-resource "aws_lambda_permission" "api_gateway_invoke_get_session" {
+resource "aws_lambda_permission" "api_gateway_invoke_delete_session" {
   statement_id  = "AllowExecutionFromAPIGateway"
   action        = "lambda:InvokeFunction"
   function_name = aws_lambda_function.delete_session.function_name
