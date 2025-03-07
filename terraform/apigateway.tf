@@ -144,10 +144,10 @@ resource "aws_api_gateway_method_response" "create_session_options_response" {
   status_code = "200"
 
   response_parameters = {
-    "method.response.header.Access-Control-Allow-Origin"      = "'${local.allowed_origins}'",
-    "method.response.header.Access-Control-Allow-Methods"     = "'GET,OPTIONS,POST,PUT,DELETE'",
-    "method.response.header.Access-Control-Allow-Headers"     = "'${local.allowed_headers}'",
-    "method.response.header.Access-Control-Allow-Credentials" = "'true'"
+    "method.response.header.Access-Control-Allow-Origin"      = true
+    "method.response.header.Access-Control-Allow-Methods"     = true
+    "method.response.header.Access-Control-Allow-Headers"     = true
+    "method.response.header.Access-Control-Allow-Credentials" = true
   }
 
 }
@@ -158,10 +158,10 @@ resource "aws_api_gateway_method_response" "edit_session_options_response" {
   status_code = "200"
 
   response_parameters = {
-    "method.response.header.Access-Control-Allow-Origin"      = "'${local.allowed_origins}'",
-    "method.response.header.Access-Control-Allow-Methods"     = "'GET,OPTIONS,POST,PUT,DELETE'",
-    "method.response.header.Access-Control-Allow-Headers"     = "'${local.allowed_headers}'",
-    "method.response.header.Access-Control-Allow-Credentials" = "'true'"
+    "method.response.header.Access-Control-Allow-Origin"      = true
+    "method.response.header.Access-Control-Allow-Methods"     = true
+    "method.response.header.Access-Control-Allow-Headers"     = true
+    "method.response.header.Access-Control-Allow-Credentials" = true
   }
 
 }
@@ -172,10 +172,10 @@ resource "aws_api_gateway_method_response" "get_session_options_response" {
   status_code = "200"
 
   response_parameters = {
-    "method.response.header.Access-Control-Allow-Origin"      = "'${local.allowed_origins}'",
-    "method.response.header.Access-Control-Allow-Methods"     = "'GET,OPTIONS,POST,PUT,DELETE'",
-    "method.response.header.Access-Control-Allow-Headers"     = "'${local.allowed_headers}'",
-    "method.response.header.Access-Control-Allow-Credentials" = "'true'"
+    "method.response.header.Access-Control-Allow-Origin"      = true
+    "method.response.header.Access-Control-Allow-Methods"     = true
+    "method.response.header.Access-Control-Allow-Headers"     = true
+    "method.response.header.Access-Control-Allow-Credentials" = true
   }
 
 }
@@ -186,10 +186,10 @@ resource "aws_api_gateway_method_response" "delete_session_options_response" {
   status_code = "200"
 
   response_parameters = {
-    "method.response.header.Access-Control-Allow-Origin"      = "'${local.allowed_origins}'",
-    "method.response.header.Access-Control-Allow-Methods"     = "'GET,OPTIONS,POST,PUT,DELETE'",
-    "method.response.header.Access-Control-Allow-Headers"     = "'${local.allowed_headers}'",
-    "method.response.header.Access-Control-Allow-Credentials" = "'true'"
+    "method.response.header.Access-Control-Allow-Origin"      = true
+    "method.response.header.Access-Control-Allow-Methods"     = true
+    "method.response.header.Access-Control-Allow-Headers"     = true
+    "method.response.header.Access-Control-Allow-Credentials" = true
   }
 
 }
