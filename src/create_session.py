@@ -6,7 +6,7 @@ from botocore.exceptions import ClientError
 import time
 from src.utils import get_cors_headers
 
-def create_session_handler(event, s3_client=None, dynamodb=None):
+def create_session_handler(event, context, s3_client=None, dynamodb=None):
     # Get CORS headers
     cors_headers = get_cors_headers(event)
     
