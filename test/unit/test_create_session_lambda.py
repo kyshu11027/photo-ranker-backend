@@ -11,8 +11,7 @@ sys.path.append(os.path.abspath('../../src'))
 sys.path.append(os.path.abspath('../../test/events'))
 sys.path.append(os.path.abspath('../../test/utils'))
 
-from src.classes import LambdaDynamoDBClass, LambdaS3Class
-from src.app import create_new_session_handler
+from src.create_session import create_session_handler
 from test.utils.unit_utils import UnitTestUtils
 
 
@@ -60,9 +59,8 @@ class TestCreateSession(TestCase):
         if not test_event:
             raise ValueError("Test event could not be loaded correctly.")
             
-        test_return_value = create_new_session_handler(
+        test_return_value = create_session_handler(
             event=test_event, 
-            context=None,
             s3_client=self.s3_client,
             dynamodb=self.ddb_client
         )
