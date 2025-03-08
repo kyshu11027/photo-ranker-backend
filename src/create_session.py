@@ -5,6 +5,7 @@ from uuid import uuid4
 from botocore.exceptions import ClientError
 import psycopg2
 import time
+import datetime
 from src.utils import get_cors_headers
 
 def create_session_handler(event, context, s3_client=None):
@@ -34,9 +35,10 @@ def create_session_handler(event, context, s3_client=None):
     user_id = body.get('userId', 'NONE')
     password = body.get('password', 'NONE')
     num_images = body.get('numImages', 0)
-    expires_at = str(int(time.time()) + 604800)
+    expires_at = datetime.datetime.fromtimestamp(int(time.time()) + 604800)
+    url = str(uuid4())
     images = []
-    s3_ids = []
+    photo_ids = []
 
     try:
         connection = psycopg2.connect(
@@ -55,12 +57,12 @@ def create_session_handler(event, context, s3_client=None):
     cursor = connection.cursor()
 
     insert_session_query = """
-        INSERT INTO sessions (user_id, password_hash, expires_at)
-        VALUES (%s, %s, %s)
+        INSERT INTO sessions (user_id, password_hash, url, expires_at)
+        VALUES (%s, %s, %s, %s)
         RETURNING session_id;
         """
     insert_photo_query = """
-        INSERT INTO photos (session_id, s3_item_id)
+        INSERT INTO photos (photo_id, session_id)
         VALUES (%s, %s)
         RETURNING photo_id;
         """
@@ -69,20 +71,20 @@ def create_session_handler(event, context, s3_client=None):
         VALUES (%s)
         """
     try:
-        cursor.execute(insert_session_query, (user_id, password, expires_at))
+        cursor.execute(insert_session_query, (user_id, password, url,  expires_at))
         session_id = cursor.fetchone()[0]
 
         for i in range(num_images):
-            s3_item_id = f'{str(session_id)}-image-{str(i)}'
-            cursor.execute(insert_photo_query, (session_id, s3_item_id))
+            photo_id = f'{url}-image-{str(i)}'
+            cursor.execute(insert_photo_query, (photo_id, session_id))
             photo_id = cursor.fetchone()[0]
             if not photo_id:
-                raise Exception(f'Failed to insert photo {str(s3_item_id)}')
+                raise Exception(f'Failed to insert photo {str(photo_id)}')
             
             cursor.execute(insert_reaction_query, (photo_id,))
-            s3_ids.append(s3_item_id)
+            photo_ids.append(photo_id)
 
-
+        connection.commit()
     except Exception as e:
         return {
             'statusCode': 400,
@@ -91,12 +93,12 @@ def create_session_handler(event, context, s3_client=None):
         }
     
     try:
-        for s3_id in s3_ids:
+        for photo_id in photo_ids:
             presigned_url = s3_client.generate_presigned_url('put_object', 
-                Params={'Bucket': BUCKET_NAME, 'Key': s3_id}, 
+                Params={'Bucket': BUCKET_NAME, 'Key': photo_id}, 
                 ExpiresIn=3600)
             images.append({
-                'id': s3_id,
+                'id': photo_id,
                 'url': presigned_url
             })
     except ClientError as e:
@@ -110,7 +112,8 @@ def create_session_handler(event, context, s3_client=None):
         'statusCode': 200,
         'headers': cors_headers,
         'body': json.dumps({
-            'sessionId': session_id,
+            'sessionId': session_id, 
+            'sessionUrl': url,
             'imageIds': images,
         })
     }
