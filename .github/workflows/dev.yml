@@ -56,6 +56,11 @@ jobs:
 
       - name: Run tests
         run: pytest
+        env:
+          DB_HOST: ${{ secrets.DB_HOST }}
+          DB_NAME: ${{ secrets.DB_NAME }}
+          DB_USER: ${{ secrets.DB_USER }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
 
       - name: Zip src files and place in terraform directory
         run: zip -r terraform/src.zip src
