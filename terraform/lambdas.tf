@@ -9,9 +9,11 @@ resource "aws_lambda_function" "create_session" {
 
   environment {
     variables = {
-      S3_BUCKET_NAME      = "${aws_s3_bucket.session_images.bucket}"
-      DYNAMODB_TABLE_NAME = "${aws_dynamodb_table.sessions.name}"
-      TERRAFORM_WORKSPACE = "${terraform.workspace}"
+      S3_BUCKET_NAME = aws_s3_bucket.session_images.bucket
+      DB_HOST        = aws_db_instance.photo_ranking_db.address
+      DB_NAME        = aws_db_instance.photo_ranking_db.db_name
+      DB_USER        = aws_db_instance.photo_ranking_db.username
+      DB_PASSWORD    = aws_db_instance.photo_ranking_db.password
     }
   }
 }
