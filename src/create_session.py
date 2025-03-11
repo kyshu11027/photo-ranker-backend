@@ -11,7 +11,7 @@ from src.utils import get_cors_headers
 def create_session_handler(event, context, s3_client=None):
     # Get CORS headers
     cors_headers = get_cors_headers(event)
-    
+        
     if s3_client is None:
         s3_client = boto3.client('s3')
     
@@ -47,31 +47,25 @@ def create_session_handler(event, context, s3_client=None):
             user=DB_USER,
             password=DB_PASSWORD
         )
-    except Exception as e:
-        return {
-            'statusCode': 400,
-            'headers': cors_headers,
-            'body': json.dumps('Issue connecting to database')
-        }
-    
-    cursor = connection.cursor()
+        
+        cursor = connection.cursor()
 
-    insert_session_query = """
-        INSERT INTO sessions (user_id, password_hash, url, expires_at)
-        VALUES (%s, %s, %s, %s)
-        RETURNING session_id;
-        """
-    insert_photo_query = """
-        INSERT INTO photos (photo_id, session_id)
-        VALUES (%s, %s)
-        RETURNING photo_id;
-        """
-    insert_reaction_query = """
-        INSERT INTO reactions (photo_id)
-        VALUES (%s)
-        """
-    try:
-        cursor.execute(insert_session_query, (user_id, password, url,  expires_at))
+        insert_session_query = """
+            INSERT INTO sessions (user_id, password_hash, url, expires_at)
+            VALUES (%s, %s, %s, %s)
+            RETURNING session_id;
+            """
+        insert_photo_query = """
+            INSERT INTO photos (photo_id, session_id)
+            VALUES (%s, %s)
+            RETURNING photo_id;
+            """
+        insert_reaction_query = """
+            INSERT INTO reactions (photo_id)
+            VALUES (%s)
+            """
+        
+        cursor.execute(insert_session_query, (user_id, password, url, expires_at))
         session_id = cursor.fetchone()[0]
 
         for i in range(num_images):
@@ -85,14 +79,7 @@ def create_session_handler(event, context, s3_client=None):
             photo_ids.append(photo_id)
 
         connection.commit()
-    except Exception as e:
-        return {
-            'statusCode': 400,
-            'headers': cors_headers,
-            'body': json.dumps(f'Issue writing to database {str(e)}')
-        }
-    
-    try:
+        
         for photo_id in photo_ids:
             presigned_url = s3_client.generate_presigned_url('put_object', 
                 Params={'Bucket': BUCKET_NAME, 'Key': photo_id}, 
@@ -101,21 +88,40 @@ def create_session_handler(event, context, s3_client=None):
                 'id': photo_id,
                 'url': presigned_url
             })
+            
+        return {
+            'statusCode': 200,
+            'headers': cors_headers,
+            'body': json.dumps({
+                'sessionId': session_id, 
+                'sessionUrl': url,
+                'imageIds': images,
+            })
+        }
+        
+    except psycopg2.Error as e:
+        if connection:
+            connection.rollback()
+        return {
+            'statusCode': 400,
+            'headers': cors_headers,
+            'body': json.dumps(f'Issue with database: {str(e)}')
+        }
     except ClientError as e:
         return {
             'statusCode': 400,
             'headers': cors_headers,
             'body': json.dumps(f'Issue generating presigned url: {str(e)}')
         }
-
-    return {
-        'statusCode': 200,
-        'headers': cors_headers,
-        'body': json.dumps({
-            'sessionId': session_id, 
-            'sessionUrl': url,
-            'imageIds': images,
-        })
-    }
+    except Exception as e:
+        return {
+            'statusCode': 400,
+            'headers': cors_headers,
+            'body': json.dumps(f'Unexpected error: {str(e)}')
+        }
+    finally:
+        if connection is not None:
+            connection.close()
+            cursor.close()
 
 
