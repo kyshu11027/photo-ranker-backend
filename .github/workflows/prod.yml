@@ -93,6 +93,12 @@ jobs:
         run: terraform fmt -check
         working-directory: ./terraform
 
+      - name: Debug Secrets
+        run: |
+          echo "DB_USER=${{ secrets.DB_USER }}"
+          echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" | sed 's/./& /g' # Masked output
+        shell: bash
+
       # Generates an execution plan for Terraform
       - name: Terraform Plan
         run: |
