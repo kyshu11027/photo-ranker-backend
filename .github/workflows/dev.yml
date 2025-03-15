@@ -12,11 +12,6 @@ on:
           - info
           - warning
           - debug
-  push:
-    branches: ["main"]
-    paths:
-      - "src/**"
-      - "test/**"
 
 permissions:
   contents: read
