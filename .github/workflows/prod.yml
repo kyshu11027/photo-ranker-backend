@@ -95,7 +95,10 @@ jobs:
 
       # Generates an execution plan for Terraform
       - name: Terraform Plan
-        run: terraform plan -input=false
+        run: |
+          terraform plan -input=false \
+          -var="db_user=${{ secrets.DB_USER }}" \
+          -var="db_password=${{ secrets.DB_PASSWORD }}"
         working-directory: ./terraform
 
         # On push to "main", build or change infrastructure according to Terraform configuration files
