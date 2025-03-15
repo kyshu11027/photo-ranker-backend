@@ -3,3 +3,4 @@ botocore
 moto
 cryptography>=35.0.0
 pytest
+python-dotenv
