@@ -6,9 +6,22 @@ from botocore.exceptions import ClientError
 import psycopg2
 import time
 import datetime
-from src.utils import get_cors_headers
+from src.utils import get_cors_headers, verify_token
 
 def create_session_handler(event, context, s3_client=None):
+    AUTH0_DOMAIN = os.environ.get('AUTH0_DOMAIN', 'NONE')
+    API_AUDIENCE = os.environ.get('API_AUDIENCE', 'NONE')
+    EXPECTED_ISSUER = os.environ.get('EXPECTED_ISSUER', 'NONE')
+    
+    try:
+        user_info = verify_token(event, auth0_domain=AUTH0_DOMAIN, api_audience=API_AUDIENCE, expected_issuer=EXPECTED_ISSUER)
+    except Exception as e:
+        return {
+            'statusCode': 400,
+            'headers': cors_headers,
+            'body': json.dumps(f'Unexpected error: {str(e)}')
+        }
+    
     # Get CORS headers
     cors_headers = get_cors_headers(event)
         
@@ -32,7 +45,7 @@ def create_session_handler(event, context, s3_client=None):
             'body': json.dumps('Issue receiving event body')
         }
     
-    user_id = body.get('userId', 'NONE')
+    user_id = user_info.get('sub', 'NONE')
     password = body.get('password', 'NONE')
     num_images = body.get('numImages', 0)
     expires_at = datetime.datetime.fromtimestamp(int(time.time()) + 604800)

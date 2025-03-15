@@ -24,7 +24,6 @@
     "sec-fetch-mode": "cors",
     "sec-fetch-site": "cross-site"
   },
-  "pathParameters": null,
-  "stageVariables": null,
-  "body": "{\"numImages\":1}"
+  "body": "{\"userId\":\"TESTUSER\", \"email\": \"test@test.com\" }",
+  "isBase64Encoded": false
 }

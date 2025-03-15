@@ -6,6 +6,7 @@ from unittest import TestCase
 from dotenv import load_dotenv
 import psycopg2
 import json
+import logging
 
 # Add the directory containing your lambda function to the Python path
 sys.path.append(os.path.abspath('../../'))
@@ -15,6 +16,7 @@ sys.path.append(os.path.abspath('../../test/utils'))
 
 from src.create_session import create_session_handler
 from src.delete_session import delete_session_handler
+from src.register_user import register_user_handler
 from test.utils.unit_utils import UnitTestUtils
 
 
@@ -36,6 +38,7 @@ class TestCreateSession(TestCase):
         self.db_name = os.environ['DB_NAME']
         self.db_user = os.environ['DB_USER']
         self.db_password = os.environ['DB_PASSWORD']
+        self.logger = logging.getLogger()
         # Set environment variables
         os.environ["S3_BUCKET_NAME"] = self.test_s3_bucket_name
         os.environ["AWS_ACCESS_KEY_ID"] = self.test_access_key
@@ -74,6 +77,10 @@ class TestCreateSession(TestCase):
         image_ids = response.get('imageIds', [])
         session_url = response.get('sessionUrl', '')
         session_id = response.get('sessionId', '')
+        self.logger.info('Session information: %s', {
+            session_url: session_url,
+            session_id: session_id,
+        })
 
         self.assertEqual(len(image_ids), 1)
         for image_id in image_ids:
@@ -107,6 +114,13 @@ class TestCreateSession(TestCase):
         except Exception as e:
             self.fail(f"Failed to retrieve reaction from Postgres: {str(e)}")
 
+        # Cleanup
+        try:
+            self.cursor.execute("DELETE FROM sessions WHERE session_id = %s", (session_id,))
+            self.connection.commit()
+        except Exception as e:
+            self.logger.error('Error cleaning up created session')
+
     def test_delete_session_in_postgres(self) -> None:
         test_event = self.utils.load_sample_event_from_file('createSession')
         test_return_value = create_session_handler(
@@ -118,6 +132,10 @@ class TestCreateSession(TestCase):
         response = json.loads(test_return_value['body'])
         session_id = response.get('sessionId')
         session_url = response.get('sessionUrl')
+        self.logger.info('Session created: %s', {
+            session_id: session_id,
+            session_url: session_url
+        })
         self.assertIsNotNone(session_id)
 
         test_event = self.utils.load_sample_event_from_file('deleteSession')
@@ -157,7 +175,39 @@ class TestCreateSession(TestCase):
         except Exception as e:
             self.fail(f"Failed to verify photo deletion from Postgres: {str(e)}")
 
+    def test_register_user_in_postgres(self) -> None:
+        test_event = self.utils.load_sample_event_from_file('registerUser')
+        TEST_USER_ID = 'TESTUSER'
+        TEST_EMAIL = 'test@test.com'
+        body = json.loads(test_event['body'])
+        body['userId'] = TEST_USER_ID
+        body['email'] = TEST_EMAIL
+        test_event['body'] = json.dumps(body)
 
+        register_user_handler(
+            event=test_event, 
+            context=None,
+        )
+        
+        try:
+            # Assert that the rows were written in the photos table
+            self.cursor.execute("SELECT * FROM accounts WHERE user_id = %s", (TEST_USER_ID,))
+            account = self.cursor.fetchone()
+            self.assertTrue(account[0] == TEST_USER_ID)
+            self.assertTrue(account[1] == TEST_EMAIL)
+
+        except Exception as e:
+            self.fail(f"Failed to verify user insertion from Postgres: {str(e)}")
+
+        # Cleanup
+
+        try: 
+            self.cursor.execute("DELETE FROM accounts WHERE user_id = %s", (TEST_USER_ID,))
+            self.connection.commit()
+        except Exception as e:
+            self.logger.error('Failed to clean up after creating account', e)
+
+        return
 
 
     def tearDown(self) -> None:
