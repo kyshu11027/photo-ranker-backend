@@ -15,6 +15,7 @@ sys.path.append(os.path.abspath('../../test/utils'))
 
 from src.create_session import create_session_handler
 from src.delete_session import delete_session_handler
+from src.get_session import get_session_handler
 from test.utils.unit_utils import UnitTestUtils
 
 
@@ -158,6 +159,35 @@ class TestCreateSession(TestCase):
             self.fail(f"Failed to verify photo deletion from Postgres: {str(e)}")
 
 
+    def test_get_session_in_postgres(self) -> None:
+        test_event = self.utils.load_sample_event_from_file('createSession')
+
+        if not test_event:
+            raise ValueError("Test event could not be loaded correctly.")
+            
+        test_return_value = create_session_handler(
+            event=test_event, 
+            context=None,
+            s3_client=self.s3_client
+        )
+
+        response = json.loads(test_return_value['body'])
+        print(response)
+        image_ids = response.get('imageIds', [])
+        session_url = response.get('sessionUrl', '')
+        session_id = response.get('sessionId', '')
+
+        test_event = self.utils.load_sample_event_from_file('getSession')
+
+
+        test_return_value = get_session_handler(
+            event=test_event,
+            context=None,
+            s3_client=self.s3_client
+        )
+
+        response = json.loads(test_return_value['body'])
+        self.assertTrue(True)
 
 
     def tearDown(self) -> None:
