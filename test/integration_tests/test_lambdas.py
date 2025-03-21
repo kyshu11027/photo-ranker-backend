@@ -184,12 +184,14 @@ class TestCreateSession(TestCase):
         body['email'] = TEST_EMAIL
         test_event['body'] = json.dumps(body)
 
-        register_user_handler(
-            event=test_event, 
-            context=None,
-        )
         
         try:
+            response = register_user_handler(
+                event=test_event, 
+                context=None,
+            )
+            self.logger.debug(json.dumps(response))
+            print(json.dumps(response))
             # Assert that the rows were written in the photos table
             self.cursor.execute("SELECT * FROM accounts WHERE user_id = %s", (TEST_USER_ID,))
             account = self.cursor.fetchone()
@@ -201,13 +203,14 @@ class TestCreateSession(TestCase):
 
         # Cleanup
 
-        try: 
-            self.cursor.execute("DELETE FROM accounts WHERE user_id = %s", (TEST_USER_ID,))
-            self.connection.commit()
-        except Exception as e:
-            self.logger.error('Failed to clean up after creating account', e)
+        # try: 
+        #     self.cursor.execute("DELETE FROM accounts WHERE user_id = %s", (TEST_USER_ID,))
+        #     self.connection.commit()
+        # except Exception as e:
+        #     self.logger.error('Failed to clean up after creating account', e)
 
         return
+
 
 
     def tearDown(self) -> None:

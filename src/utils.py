@@ -23,7 +23,7 @@ def get_cors_headers(event):
     }
 
 def get_public_key(auth0_domain):
-    jwks_url = f"https://{auth0_domain}/.well-known/jwks.json"
+    jwks_url = f"{auth0_domain}/.well-known/jwks.json"
     try:
         response = requests.get(jwks_url, timeout=5)
         response.raise_for_status()
@@ -32,15 +32,16 @@ def get_public_key(auth0_domain):
         if "keys" not in jwks or not jwks["keys"]:
             raise ValueError("No public keys found in JWKS response")
 
-        return jwks["keys"][0]
+        return jwt.algorithms.RSAAlgorithm.from_jwk(jwks["keys"][0])
+
 
     except requests.RequestException as e:
         print(f"Error fetching JWKS: {e}")
-        raise
+        raise e
 
     except (ValueError, KeyError) as e:
         print(f"Error processing JWKS: {e}")
-        raise
+        raise e
 
 def extract_token(event):
     auth_header = event.get("headers", {}).get("Authorization")
@@ -49,16 +50,19 @@ def extract_token(event):
         raise ValueError("Missing or invalid Authorization header")
     return auth_header.split(" ")[1]
 
-def verify_token(event, auth0_domain, api_audience, expected_issuer):
+def verify_token(event):
+
+    AUTH0_DOMAIN = os.environ['AUTH0_DOMAIN']
+    API_AUDIENCE = os.environ['API_AUDIENCE']
+
     token = extract_token(event)
-    public_key = get_public_key(auth0_domain)
+    public_key = get_public_key(AUTH0_DOMAIN)
     try:
-        payload = jwt.verify(
+        payload = jwt.decode(
             token, 
             public_key, 
             algorithms=["RS256"], 
-            audience=api_audience, 
-            iss=expected_issuer
+            audience=API_AUDIENCE
         )
         return payload
     except jwt.ExpiredSignatureError:

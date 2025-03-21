@@ -22,7 +22,8 @@
     "sec-ch-ua-platform": "\"macOS\"",
     "sec-fetch-dest": "empty",
     "sec-fetch-mode": "cors",
-    "sec-fetch-site": "cross-site"
+    "sec-fetch-site": "cross-site",
+    "Authorization": "Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6ImV3U2ZXRUxQMzdDdU42ZXgzNmxNXyJ9.eyJpc3MiOiJodHRwczovL2Rldi0xNDBqdWVpcGFudGNmNHYzLnVzLmF1dGgwLmNvbS8iLCJzdWIiOiJCSDhhVUtYNU0xQzVFRng5TzJWTXdvRkdIYnc0bkFYbEBjbGllbnRzIiwiYXVkIjoiaHR0cHM6Ly9mbnZ4dHc1bXhpLmV4ZWN1dGUtYXBpLnVzLWVhc3QtMi5hbWF6b25hd3MuY29tL3Bob3RvLXJhbmtlci1hcGktZGV2IiwiaWF0IjoxNzQyNTE2NjMwLCJleHAiOjE3NDI2MDMwMzAsImd0eSI6ImNsaWVudC1jcmVkZW50aWFscyIsImF6cCI6IkJIOGFVS1g1TTFDNUVGeDlPMlZNd29GR0hidzRuQVhsIn0.kc1hCvx5wqaFQkzJRrrWx0A84tntQydqoLs_8Kqs0sL4Gp4MObAClp4WahKTnnkOUGa-3AEgA8VLeDmGXkEHqzXineCHIvkSYww9phqs-MrqoZqpeerz8bIqATsEkj-PHmC75c0XoroKSUjv-x8r4pw1SGXE2a0s6YhUTYG7idvp4gTeL8EFRsZaY1h7GBOtn_zkroh2N-Op95AGfd-BbbTWXOjS4IhJXD7reytiBlPzFdEGQDBlEZp8Qqamyl_W9JiCP3EGruNRzfa-ddZ3R_RV4Kf9F5VqHWm3BViED2nZ4iw2sIrzNtbX0_5Btnp-b6XQunAYnRXL9vL2b5r-sg"
   },
   "body": "{\"userId\":\"TESTUSER\", \"email\": \"test@test.com\" }",
   "isBase64Encoded": false
