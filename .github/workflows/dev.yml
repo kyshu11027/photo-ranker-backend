@@ -103,7 +103,7 @@ jobs:
           terraform plan -input=false \
           -var="db_user=${{ secrets.DB_USER }}" \
           -var="db_password=${{ secrets.DB_PASSWORD }}" \
-          -var="auth0_domain=${{secrets.AUTH0_DOMAIN}}"
+          -var="auth0_domain=${{ secrets.AUTH0_DOMAIN }}"
         working-directory: ./terraform
 
         # On push to "main", build or change infrastructure according to Terraform configuration files
@@ -113,5 +113,5 @@ jobs:
           terraform apply -auto-approve -input=false \
           -var="db_user=${{ secrets.DB_USER }}" \
           -var="db_password=${{ secrets.DB_PASSWORD }}" \
-          -var="auth0_domain=${{secrets.AUTH0_DOMAIN}}"
+          -var="auth0_domain=${{ secrets.AUTH0_DOMAIN }}"
         working-directory: ./terraform
