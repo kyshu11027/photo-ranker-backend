@@ -341,10 +341,10 @@ resource "aws_api_gateway_integration_response" "create_session_options_integrat
   status_code = aws_api_gateway_method_response.create_session_options_response.status_code
 
   response_parameters = {
-    "method.response.header.Access-Control-Allow-Origin"      = true
-    "method.response.header.Access-Control-Allow-Methods"     = true
-    "method.response.header.Access-Control-Allow-Headers"     = true
-    "method.response.header.Access-Control-Allow-Credentials" = true
+    "method.response.header.Access-Control-Allow-Origin"      = "'${local.allowed_origins}'",
+    "method.response.header.Access-Control-Allow-Methods"     = "'GET,OPTIONS,POST,PUT,DELETE'",
+    "method.response.header.Access-Control-Allow-Headers"     = "'${local.allowed_headers}'",
+    "method.response.header.Access-Control-Allow-Credentials" = "'true'"
   }
 }
 resource "aws_api_gateway_integration_response" "edit_session_options_integration_response" {
@@ -354,10 +354,10 @@ resource "aws_api_gateway_integration_response" "edit_session_options_integratio
   status_code = aws_api_gateway_method_response.edit_session_options_response.status_code
 
   response_parameters = {
-    "method.response.header.Access-Control-Allow-Origin"      = true
-    "method.response.header.Access-Control-Allow-Methods"     = true
-    "method.response.header.Access-Control-Allow-Headers"     = true
-    "method.response.header.Access-Control-Allow-Credentials" = true
+    "method.response.header.Access-Control-Allow-Origin"      = "'${local.allowed_origins}'",
+    "method.response.header.Access-Control-Allow-Methods"     = "'GET,OPTIONS,POST,PUT,DELETE'",
+    "method.response.header.Access-Control-Allow-Headers"     = "'${local.allowed_headers}'",
+    "method.response.header.Access-Control-Allow-Credentials" = "'true'"
   }
 }
 resource "aws_api_gateway_integration_response" "get_session_options_integration_response" {
@@ -367,10 +367,10 @@ resource "aws_api_gateway_integration_response" "get_session_options_integration
   status_code = aws_api_gateway_method_response.get_session_options_response.status_code
 
   response_parameters = {
-    "method.response.header.Access-Control-Allow-Origin"      = true
-    "method.response.header.Access-Control-Allow-Methods"     = true
-    "method.response.header.Access-Control-Allow-Headers"     = true
-    "method.response.header.Access-Control-Allow-Credentials" = true
+    "method.response.header.Access-Control-Allow-Origin"      = "'${local.allowed_origins}'",
+    "method.response.header.Access-Control-Allow-Methods"     = "'GET,OPTIONS,POST,PUT,DELETE'",
+    "method.response.header.Access-Control-Allow-Headers"     = "'${local.allowed_headers}'",
+    "method.response.header.Access-Control-Allow-Credentials" = "'true'"
   }
 }
 resource "aws_api_gateway_integration_response" "delete_session_options_integration_response" {
