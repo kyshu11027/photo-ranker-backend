@@ -89,7 +89,7 @@ resource "aws_lambda_function" "register_user" {
       DB_NAME      = aws_db_instance.photo_ranking_db.db_name
       DB_USER      = aws_db_instance.photo_ranking_db.username
       DB_PASSWORD  = aws_db_instance.photo_ranking_db.password
-      API_AUDIENCE = aws_api_gateway_deployment.photo_ranker_api_deployment.invoke_url
+      API_AUDIENCE = var.api_audience
       AUTH0_DOMAIN = var.auth0_domain
     }
   }
