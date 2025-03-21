@@ -5,3 +5,5 @@ cryptography>=35.0.0
 pytest
 python-dotenv
 psycopg2-binary
+PyJWT==2.8.0
+requests==2.31.0
