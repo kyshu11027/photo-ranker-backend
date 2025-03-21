@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 import psycopg2
 import json
 import logging
+import requests
 
 # Add the directory containing your lambda function to the Python path
 sys.path.append(os.path.abspath('../../'))
@@ -38,6 +39,10 @@ class TestCreateSession(TestCase):
         self.db_name = os.environ['DB_NAME']
         self.db_user = os.environ['DB_USER']
         self.db_password = os.environ['DB_PASSWORD']
+        self.client_id = os.environ['CLIENT_ID']
+        self.client_secret = os.environ['CLIENT_SECRET']
+        self.api_audience = os.environ['API_AUDIENCE']
+        self.auth0_domain = os.environ['AUTH0_DOMAIN']
         self.logger = logging.getLogger()
         # Set environment variables
         os.environ["S3_BUCKET_NAME"] = self.test_s3_bucket_name
@@ -176,7 +181,29 @@ class TestCreateSession(TestCase):
             self.fail(f"Failed to verify photo deletion from Postgres: {str(e)}")
 
     def test_register_user_in_postgres(self) -> None:
+        # Get a JWT
+        
+        try:
+            tokenResponse = requests.post(f'{self.auth0_domain}/oauth/token', data={
+                'client_id': self.client_id,
+                'client_secret': self.client_secret,
+                'audience': self.api_audience,
+                'grant_type': 'client_credentials'  # Missing grant type added
+            })
+            print("Response Status:", tokenResponse.status_code)
+            print("Response Body:", tokenResponse.text)
+            
+            tokenResponse.raise_for_status()  # Ensure request was successful
+            access_token = tokenResponse.json().get('access_token')
+
+            if not access_token:
+                self.fail('Token response did not contain an access token')
+
+        except requests.RequestException as e:
+            self.fail(f'Failed to get token: {str(e)}')
+
         test_event = self.utils.load_sample_event_from_file('registerUser')
+        test_event['headers']['Authorization'] = f'Bearer {access_token}'
         TEST_USER_ID = 'TESTUSER'
         TEST_EMAIL = 'test@test.com'
         body = json.loads(test_event['body'])
@@ -195,6 +222,7 @@ class TestCreateSession(TestCase):
             # Assert that the rows were written in the photos table
             self.cursor.execute("SELECT * FROM accounts WHERE user_id = %s", (TEST_USER_ID,))
             account = self.cursor.fetchone()
+            self.assertTrue(len(account) != 0)
             self.assertTrue(account[0] == TEST_USER_ID)
             self.assertTrue(account[1] == TEST_EMAIL)
 
@@ -203,11 +231,11 @@ class TestCreateSession(TestCase):
 
         # Cleanup
 
-        # try: 
-        #     self.cursor.execute("DELETE FROM accounts WHERE user_id = %s", (TEST_USER_ID,))
-        #     self.connection.commit()
-        # except Exception as e:
-        #     self.logger.error('Failed to clean up after creating account', e)
+        try: 
+            self.cursor.execute("DELETE FROM accounts WHERE user_id = %s", (TEST_USER_ID,))
+            self.connection.commit()
+        except Exception as e:
+            self.logger.error('Failed to clean up after creating account', e)
 
         return
 

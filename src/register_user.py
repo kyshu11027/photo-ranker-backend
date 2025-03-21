@@ -33,7 +33,7 @@ def register_user_handler(event, context):
         }
 
     try:
-        user_id = jwt['sub']
+        user_id = body['userId']
         email = body['email']
     except KeyError as e:
         return {
