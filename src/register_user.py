@@ -4,18 +4,15 @@ import psycopg2
 from src.utils import get_cors_headers, verify_token
 
 def register_user_handler(event, context):
-    
     cors_headers = get_cors_headers(event)
-    
     try:
-        jwt = verify_token(event)
+        verify_token(event)
     except Exception as e:
         return {
             'statusCode': 401,
             'headers': cors_headers,
             'body': json.dumps(f'Failed to verify token: {str(e)}')
         }
-    
 
     DB_HOST = os.environ.get('DB_HOST', 'NONE')
     DB_NAME = os.environ.get('DB_NAME', 'NONE')

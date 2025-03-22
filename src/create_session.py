@@ -9,9 +9,16 @@ import datetime
 from src.utils import get_cors_headers, verify_token
 
 def create_session_handler(event, context, s3_client=None):
-    
     # Get CORS headers
     cors_headers = get_cors_headers(event)
+    try:
+        verify_token(event)
+    except Exception as e:
+        return {
+            'statusCode': 401,
+            'headers': cors_headers,
+            'body': json.dumps(f'Failed to verify token: {str(e)}')
+        }
     
     if s3_client is None:
         s3_client = boto3.client('s3')
@@ -32,8 +39,8 @@ def create_session_handler(event, context, s3_client=None):
             'headers': cors_headers,
             'body': json.dumps('Issue receiving event body')
         }
-    
-    user_id = body.get('sub', 'NONE')
+
+    user_id = body.get('userId', 'NONE')
     password = body.get('password', 'NONE')
     num_images = body.get('numImages', 0)
     expires_at = datetime.datetime.fromtimestamp(int(time.time()) + 604800)

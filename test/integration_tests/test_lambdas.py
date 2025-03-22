@@ -66,7 +66,19 @@ class TestCreateSession(TestCase):
         """
         Verify given correct parameters, the document will be written to S3 with proper contents.
         """
+        try: 
+            access_token = self.utils.get_test_jwt(
+                auth0_domain=self.auth0_domain,
+                client_id=self.client_id,
+                client_secret=self.client_secret,
+                api_audience=self.api_audience
+            )
+        except Exception as e:
+            self.fail(f'Failed to get JWT: {str(e)}')
+
         test_event = self.utils.load_sample_event_from_file('createSession')
+        test_event['headers']['Authorization'] = f'Bearer {access_token}'
+
 
         if not test_event:
             raise ValueError("Test event could not be loaded correctly.")
@@ -119,15 +131,28 @@ class TestCreateSession(TestCase):
         except Exception as e:
             self.fail(f"Failed to retrieve reaction from Postgres: {str(e)}")
 
-        # Cleanup
-        try:
-            self.cursor.execute("DELETE FROM sessions WHERE session_id = %s", (session_id,))
-            self.connection.commit()
-        except Exception as e:
-            self.logger.error('Error cleaning up created session')
+        # # Cleanup
+        # try:
+        #     self.cursor.execute("DELETE FROM sessions WHERE session_id = %s", (session_id,))
+        #     self.connection.commit()
+        # except Exception as e:
+        #     self.logger.error('Error cleaning up created session')
 
     def test_delete_session_in_postgres(self) -> None:
+
+        try: 
+            access_token = self.utils.get_test_jwt(
+                auth0_domain=self.auth0_domain,
+                client_id=self.client_id,
+                client_secret=self.client_secret,
+                api_audience=self.api_audience
+            )
+        except Exception as e:
+            self.fail(f'Failed to get JWT: {str(e)}')
+
         test_event = self.utils.load_sample_event_from_file('createSession')
+        test_event['headers']['Authorization'] = f'Bearer {access_token}'
+
         test_return_value = create_session_handler(
             event=test_event, 
             context=None,
@@ -135,6 +160,7 @@ class TestCreateSession(TestCase):
         )
 
         response = json.loads(test_return_value['body'])
+        print(response)
         session_id = response.get('sessionId')
         session_url = response.get('sessionUrl')
         self.logger.info('Session created: %s', {
@@ -144,10 +170,11 @@ class TestCreateSession(TestCase):
         self.assertIsNotNone(session_id)
 
         test_event = self.utils.load_sample_event_from_file('deleteSession')
+        test_event['headers']['Authorization'] = f'Bearer {access_token}'
 
         if not test_event:
             raise ValueError("Test event could not be loaded correctly.")
-            
+
         body = json.loads(test_event['body'])
         body['sessionId'] = session_id
         body['sessionUrl'] = session_url
@@ -182,25 +209,16 @@ class TestCreateSession(TestCase):
 
     def test_register_user_in_postgres(self) -> None:
         # Get a JWT
-        
-        try:
-            tokenResponse = requests.post(f'{self.auth0_domain}/oauth/token', data={
-                'client_id': self.client_id,
-                'client_secret': self.client_secret,
-                'audience': self.api_audience,
-                'grant_type': 'client_credentials'  # Missing grant type added
-            })
-            print("Response Status:", tokenResponse.status_code)
-            print("Response Body:", tokenResponse.text)
-            
-            tokenResponse.raise_for_status()  # Ensure request was successful
-            access_token = tokenResponse.json().get('access_token')
 
-            if not access_token:
-                self.fail('Token response did not contain an access token')
-
-        except requests.RequestException as e:
-            self.fail(f'Failed to get token: {str(e)}')
+        try: 
+            access_token = self.utils.get_test_jwt(
+                auth0_domain=self.auth0_domain,
+                client_id=self.client_id,
+                client_secret=self.client_secret,
+                api_audience=self.api_audience
+            )
+        except Exception as e:
+            self.fail(f'Failed to get JWT: {str(e)}')
 
         test_event = self.utils.load_sample_event_from_file('registerUser')
         test_event['headers']['Authorization'] = f'Bearer {access_token}'
@@ -238,8 +256,6 @@ class TestCreateSession(TestCase):
             self.logger.error('Failed to clean up after creating account', e)
 
         return
-
-
 
     def tearDown(self) -> None:
         s3_bucket = self.s3_resource.Bucket(self.test_s3_bucket_name)

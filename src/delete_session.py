@@ -3,11 +3,20 @@ import os
 import json
 import psycopg2
 from botocore.exceptions import ClientError
-from src.utils import get_cors_headers
+from src.utils import get_cors_headers, verify_token
 
 
 def delete_session_handler(event, context, s3_client=None):
     cors_headers = get_cors_headers(event)
+    try:
+        verify_token(event)
+    except Exception as e:
+        return {
+            'statusCode': 401,
+            'headers': cors_headers,
+            'body': json.dumps(f'Failed to verify token: {str(e)}')
+        }
+    
 
     if s3_client is None:
         s3_client = boto3.client('s3')
