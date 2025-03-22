@@ -16,15 +16,14 @@ def test_register_user_in_postgres(db_connection, test_user, logger, load_sample
         pytest.fail(f'Failed to get JWT: {str(e)}')
 
     # Load test event for registering a user
-    test_event = load_sample_event('registerUser')
+    test_event = load_sample_event('testEvent')
     test_event['headers']['Authorization'] = f'Bearer {access_token}'
 
     TEST_EMAIL = 'test@test.com'
-
-    body = json.loads(test_event['body'])
-    body['userId'] = TEST_USER_ID
-    body['email'] = TEST_EMAIL
-    test_event['body'] = json.dumps(body)
+    test_event['body'] = json.dumps({
+        'userId': TEST_USER_ID,
+        'email': TEST_EMAIL
+    })
 
     # Call register user handler
     try:
