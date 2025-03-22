@@ -57,7 +57,7 @@ jobs:
           DB_USER: ${{ secrets.DB_USER }}
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
           AUTH0_DOMAIN: ${{ secrets.AUTH0_DOMAIN }}
-          API_AUDIENCE: ${{ secrets.API_AUDIENCE }}
+          API_AUDIENCE: ${{ secrets.API_AUDIENCE_PROD }}
           CLIENT_ID: ${{ secrets.CLIENT_ID }}
           CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
 
