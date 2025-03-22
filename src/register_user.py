@@ -3,7 +3,7 @@ import os
 import psycopg2
 from src.utils import get_cors_headers, verify_token
 
-def register_user_handler(event, context):
+def register_user_handler(event, context, db_connection=None):
     cors_headers = get_cors_headers(event)
     try:
         verify_token(event)
@@ -26,7 +26,10 @@ def register_user_handler(event, context):
         return {
             'statusCode': 400,
             'headers': cors_headers,
-            'body': json.dumps('Issue receiving event body')
+            'body': json.dumps({
+                'success': False,
+                'message': f'Issue receiving event body: {str(e)}'
+            })
         }
 
     try:
@@ -39,13 +42,17 @@ def register_user_handler(event, context):
             'body': json.dumps(f'Issue getting fields from payload: {str(e)}')
         }
 
+    created_connection = False
     try:
-        connection = psycopg2.connect(
-            host=DB_HOST,
-            database=DB_NAME,
-            user=DB_USER,
-            password=DB_PASSWORD
-        )
+        if db_connection is None:
+            connection = psycopg2.connect(
+                host=DB_HOST,
+                database=DB_NAME,
+                user=DB_USER,
+                password=DB_PASSWORD
+            )
+            created_connection = True
+
         cursor = connection.cursor()
         insert_user_query = """
             INSERT INTO accounts (user_id, email)
@@ -68,9 +75,10 @@ def register_user_handler(event, context):
             'body': json.dumps(f'Unexpected error: {str(e)}')
         } 
     finally:
-        if connection is not None:
-            connection.close()
+        if 'cursor' in locals():  # Ensure cursor exists before closing
             cursor.close()
+        if created_connection and db_connection is not None:  # Only close if we created it
+            db_connection.close()
 
     
     return {

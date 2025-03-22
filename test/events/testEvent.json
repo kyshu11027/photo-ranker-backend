@@ -25,6 +25,6 @@
     "sec-fetch-site": "cross-site",
     "Authorization": ""
   },
-  "body": "{\"userId\":\"TESTUSER\", \"email\": \"test@test.com\" }",
+  "body": "",
   "isBase64Encoded": false
 }
