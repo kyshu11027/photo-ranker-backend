@@ -1,1 +1,4 @@
-psycopg2-binary
+psycopg2-binary==2.9.9
+requests==2.31.0
+urllib3==1.25.10,<1.27 
+PyJWT==2.8.0

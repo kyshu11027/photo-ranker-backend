@@ -3,11 +3,20 @@ import os
 import json
 import psycopg2
 from botocore.exceptions import ClientError
-from src.utils import get_cors_headers
+from src.utils import get_cors_headers, verify_token
 
 
-def delete_session_handler(event, context, s3_client=None):
+def delete_session_handler(event, context, s3_client=None, db_connection=None):
     cors_headers = get_cors_headers(event)
+    try:
+        jwt = verify_token(event)
+    except Exception as e:
+        return {
+            'statusCode': 401,
+            'headers': cors_headers,
+            'body': json.dumps(f'Failed to verify token: {str(e)}')
+        }
+    
 
     if s3_client is None:
         s3_client = boto3.client('s3')
@@ -29,27 +38,31 @@ def delete_session_handler(event, context, s3_client=None):
             'body': json.dumps('Issue receiving event body')
         }
     
-    user_id = body.get('userId', 'NONE')
+    user_id = jwt['sub'] # We want to ensure that the person deleting this is the session owner
     password = body.get('password', 'NONE')
     session_id = body.get('sessionId', 'NONE')
     session_url = body.get('sessionUrl', 'NONE')
     objects_to_delete = []
 
+    created_connection = False
     try:
-        connection = psycopg2.connect(
-            host=DB_HOST,
-            database=DB_NAME,
-            user=DB_USER,
-            password=DB_PASSWORD
-        )        
-        cursor = connection.cursor()
+        if db_connection is None:
+            db_connection = psycopg2.connect(
+                host=DB_HOST,
+                database=DB_NAME,
+                user=DB_USER,
+                password=DB_PASSWORD
+            )
+            created_connection = True
+               
+        cursor = db_connection.cursor()
         delete_query = """
             DELETE FROM sessions
             WHERE user_id = %s AND session_id = %s AND password_hash = %s;
             """
         
         cursor.execute(delete_query, (user_id, session_id, password))
-        connection.commit()
+        db_connection.commit()
         
         db_deletion_success = cursor.rowcount > 0
 
@@ -72,8 +85,8 @@ def delete_session_handler(event, context, s3_client=None):
             print("No matching objects found.")
 
     except psycopg2.Error as e:
-        if connection:
-            connection.rollback()
+        if db_connection:
+            db_connection.rollback()
         return {
             'statusCode': 400,
             'headers': cors_headers,
@@ -93,9 +106,10 @@ def delete_session_handler(event, context, s3_client=None):
         }
     
     finally:
-        if connection != None:
+        if 'cursor' in locals():  # Ensure cursor exists before closing
             cursor.close()
-            connection.close()
+        if created_connection and db_connection is not None:  # Only close if we created it
+            db_connection.close()
 
     return {
         'statusCode': 200,

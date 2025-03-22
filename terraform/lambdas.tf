@@ -73,3 +73,24 @@ resource "aws_lambda_function" "delete_session" {
     }
   }
 }
+
+resource "aws_lambda_function" "register_user" {
+  function_name    = "photo-ranker-register-user-${terraform.workspace}"
+  role             = aws_iam_role.lambda_role.arn
+  handler          = "src/register_user.register_user_handler"
+  runtime          = "python3.9"
+  timeout          = 5
+  filename         = "src.zip"
+  source_code_hash = filebase64sha256("src.zip")
+
+  environment {
+    variables = {
+      DB_HOST      = aws_db_instance.photo_ranking_db.address
+      DB_NAME      = aws_db_instance.photo_ranking_db.db_name
+      DB_USER      = aws_db_instance.photo_ranking_db.username
+      DB_PASSWORD  = aws_db_instance.photo_ranking_db.password
+      API_AUDIENCE = var.api_audience
+      AUTH0_DOMAIN = var.auth0_domain
+    }
+  }
+}

@@ -56,6 +56,10 @@ jobs:
           DB_NAME: ${{ secrets.DB_NAME }}
           DB_USER: ${{ secrets.DB_USER }}
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          AUTH0_DOMAIN: ${{ secrets.AUTH0_DOMAIN }}
+          API_AUDIENCE: ${{ secrets.API_AUDIENCE_PROD }}
+          CLIENT_ID: ${{ secrets.CLIENT_ID }}
+          CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
 
       - name: Zip src files and place in terraform directory
         run: zip -r terraform/src.zip src
@@ -98,7 +102,9 @@ jobs:
         run: |
           terraform plan -input=false \
           -var="db_user=${{ secrets.DB_USER }}" \
-          -var="db_password=${{ secrets.DB_PASSWORD }}"
+          -var="db_password=${{ secrets.DB_PASSWORD }}" \
+          -var="auth0_domain=${{ secrets.AUTH0_DOMAIN }}" \
+          -var="api_audience=${{ secrets.API_AUDIENCE_PROD }}"
         working-directory: ./terraform
 
         # On push to "main", build or change infrastructure according to Terraform configuration files
@@ -107,5 +113,7 @@ jobs:
         run: |
           terraform apply -auto-approve -input=false \
           -var="db_user=${{ secrets.DB_USER }}" \
-          -var="db_password=${{ secrets.DB_PASSWORD }}"
+          -var="db_password=${{ secrets.DB_PASSWORD }}" \
+          -var="auth0_domain=${{ secrets.AUTH0_DOMAIN }}" \
+          -var="api_audience=${{ secrets.API_AUDIENCE_PROD }}"
         working-directory: ./terraform

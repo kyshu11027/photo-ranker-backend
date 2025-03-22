@@ -6,12 +6,21 @@ from botocore.exceptions import ClientError
 import psycopg2
 import time
 import datetime
-from src.utils import get_cors_headers
+from src.utils import get_cors_headers, verify_token
 
-def create_session_handler(event, context, s3_client=None):
+def create_session_handler(event, context, s3_client=None, db_connection=None):
     # Get CORS headers
     cors_headers = get_cors_headers(event)
-        
+    
+    try:
+        jwt = verify_token(event)
+    except Exception as e:
+        return {
+            'statusCode': 401,
+            'headers': cors_headers,
+            'body': json.dumps(f'Failed to verify token: {str(e)}')
+        }
+    
     if s3_client is None:
         s3_client = boto3.client('s3')
     
@@ -23,16 +32,17 @@ def create_session_handler(event, context, s3_client=None):
     
     # Log the entire event for debugging
     print("Received event:", json.dumps(event))
+    
     try:
         body = json.loads(event['body'])
-    except Exception as e:
+    except Exception:
         return {
             'statusCode': 400,
             'headers': cors_headers,
             'body': json.dumps('Issue receiving event body')
         }
-    
-    user_id = body.get('userId', 'NONE')
+
+    user_id = jwt['sub']  # Ensure consistency of session ownership
     password = body.get('password', 'NONE')
     num_images = body.get('numImages', 0)
     expires_at = datetime.datetime.fromtimestamp(int(time.time()) + 604800)
@@ -40,15 +50,20 @@ def create_session_handler(event, context, s3_client=None):
     images = []
     photo_ids = []
 
+    created_connection = False  # Track if we created the connection
+
     try:
-        connection = psycopg2.connect(
-            host=DB_HOST,
-            database=DB_NAME,
-            user=DB_USER,
-            password=DB_PASSWORD
-        )
+        # If no db_connection is passed (i.e., production), create a new one
+        if db_connection is None:
+            db_connection = psycopg2.connect(
+                host=DB_HOST,
+                database=DB_NAME,
+                user=DB_USER,
+                password=DB_PASSWORD
+            )
+            created_connection = True  # Mark that we created this connection
         
-        cursor = connection.cursor()
+        cursor = db_connection.cursor()
 
         insert_session_query = """
             INSERT INTO sessions (user_id, password_hash, url, expires_at)
@@ -78,7 +93,7 @@ def create_session_handler(event, context, s3_client=None):
             cursor.execute(insert_reaction_query, (photo_id,))
             photo_ids.append(photo_id)
 
-        connection.commit()
+        db_connection.commit()
         
         for photo_id in photo_ids:
             presigned_url = s3_client.generate_presigned_url('put_object', 
@@ -100,28 +115,36 @@ def create_session_handler(event, context, s3_client=None):
         }
         
     except psycopg2.Error as e:
-        if connection:
-            connection.rollback()
+        if db_connection:
+            db_connection.rollback()
         return {
             'statusCode': 400,
             'headers': cors_headers,
-            'body': json.dumps(f'Issue with database: {str(e)}')
+            'body': json.dumps({
+                'success': False,
+                'message': f'Issue with database: {str(e)}'
+            })
         }
     except ClientError as e:
         return {
             'statusCode': 400,
             'headers': cors_headers,
-            'body': json.dumps(f'Issue generating presigned url: {str(e)}')
+            'body': json.dumps({
+                'success': False,
+                'message': f'Issue generating presigned url: {str(e)}'
+            })
         }
     except Exception as e:
         return {
             'statusCode': 400,
             'headers': cors_headers,
-            'body': json.dumps(f'Unexpected error: {str(e)}')
+            'body': json.dumps({
+                'success': False,
+                'message': f'Unexpected error: {str(e)}'
+            })
         }
     finally:
-        if connection is not None:
-            connection.close()
+        if 'cursor' in locals():  # Ensure cursor exists before closing
             cursor.close()
-
-
+        if created_connection and db_connection is not None:  # Only close if we created it
+            db_connection.close()
