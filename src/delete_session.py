@@ -35,7 +35,10 @@ def delete_session_handler(event, context, s3_client=None, db_connection=None):
         return {
             'statusCode': 400,
             'headers': cors_headers,
-            'body': json.dumps('Issue receiving event body')
+            'body': json.dumps({
+                'success': False,
+                'message': f'Issue receiving event body: {str(e)}'
+            })
         }
     
     user_id = jwt['sub'] # We want to ensure that the person deleting this is the session owner
@@ -90,19 +93,28 @@ def delete_session_handler(event, context, s3_client=None, db_connection=None):
         return {
             'statusCode': 400,
             'headers': cors_headers,
-            'body': json.dumps(f'Issue with database: {str(e)}')
+            'body': json.dumps({
+                'success': False, 
+                'message': f'Issue with database: {str(e)}'
+            })
         }
     except ClientError as e:
         return {
             'statusCode': 400,
             'headers': cors_headers,
-            'body': json.dumps(f'Issue with S3 object deletion: {str(e)}')
+            'body': json.dumps({
+                'success': False,
+                'message': f'Issue with S3 object deletion: {str(e)}'
+            })
         }
     except Exception as e:
         return {
             'statusCode': 400,
             'headers': cors_headers,
-            'body': json.dumps(f'Unexpected error: {str(e)}')
+            'body': json.dumps({
+                'success': False,
+                'message': f'Unexpected error: {str(e)}'
+            })
         }
     
     finally:

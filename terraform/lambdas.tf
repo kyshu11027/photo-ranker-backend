@@ -94,3 +94,41 @@ resource "aws_lambda_function" "register_user" {
     }
   }
 }
+
+resource "aws_lambda_function" "add_reaction" {
+  function_name    = "photo-ranker-add-reaction-${terraform.workspace}"
+  role             = aws_iam_role.lambda_role.arn
+  handler          = "src/add_reaction.add_reaction_handler"
+  runtime          = "python3.9"
+  timeout          = 5
+  filename         = "src.zip"
+  source_code_hash = filebase64sha256("src.zip")
+
+  environment {
+    variables = {
+      DB_HOST      = aws_db_instance.photo_ranking_db.address
+      DB_NAME      = aws_db_instance.photo_ranking_db.db_name
+      DB_USER      = aws_db_instance.photo_ranking_db.username
+      DB_PASSWORD  = aws_db_instance.photo_ranking_db.password
+    }
+  }
+}
+
+resource "aws_lambda_function" "remove_reaction" {
+  function_name    = "photo-ranker-remove-reaction-${terraform.workspace}"
+  role             = aws_iam_role.lambda_role.arn
+  handler          = "src/remove_reaction.remove_reaction_handler"
+  runtime          = "python3.9"
+  timeout          = 5
+  filename         = "src.zip"
+  source_code_hash = filebase64sha256("src.zip")
+
+  environment {
+    variables = {
+      DB_HOST      = aws_db_instance.photo_ranking_db.address
+      DB_NAME      = aws_db_instance.photo_ranking_db.db_name
+      DB_USER      = aws_db_instance.photo_ranking_db.username
+      DB_PASSWORD  = aws_db_instance.photo_ranking_db.password
+    }
+  }
+}

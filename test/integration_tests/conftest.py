@@ -84,10 +84,34 @@ def test_user(db_connection, get_test_jwt, load_env):
     cursor.execute("INSERT INTO accounts (user_id, email) VALUES (%s, %s)", (user_id, email))
     conn.commit()
 
-    yield access_token, user_id
+    return access_token, user_id
 
-    cursor.execute('DELETE FROM accounts WHERE user_id = %s', (user_id,))
+@pytest.fixture(scope="function")
+def test_session(db_connection, test_user):
+    """Create a test session and return session_id and a photo_id"""
+    conn, cursor = db_connection
+    _, user_id = test_user
+
+    insert_session_query = """
+        INSERT INTO sessions (user_id)
+        VALUES (%s)
+        RETURNING session_id;
+        """
+    insert_photo_query = """
+        INSERT INTO photos (photo_id, session_id)
+        VALUES (%s, %s)
+        RETURNING photo_id;
+        """
+    
+    cursor.execute(insert_session_query, (user_id,))
+    session_id = cursor.fetchone()[0]
     conn.commit()
+
+    TEST_PHOTO_ID = 'TEST_PHOTO_ID'
+    cursor.execute(insert_photo_query, (TEST_PHOTO_ID, session_id))
+    conn.commit
+
+    return session_id, TEST_PHOTO_ID
 
 @pytest.fixture(scope="session")
 def logger():
@@ -117,43 +141,64 @@ def db_connection(postgresql):
     """
     # Create tables in the test database
     schema_sql = """
-    CREATE TABLE accounts (
-        user_id TEXT PRIMARY KEY,
+        CREATE TABLE accounts (
+        user_id text PRIMARY KEY,
         email TEXT NOT NULL
-    );
+        );
 
-    CREATE TABLE sessions (
+        CREATE TABLE sessions (
         session_id SERIAL PRIMARY KEY,
-        user_id TEXT NOT NULL,
+        user_id text NOT NULL,
         password_hash TEXT,
         url TEXT, 
-        expires_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        expires_at TIMESTAMP DEFAULT (CURRENT_TIMESTAMP + INTERVAL '7 days'),
         FOREIGN KEY (user_id) REFERENCES accounts(user_id) ON DELETE CASCADE
-    );
+        );
 
-    CREATE TABLE photos (
-        photo_id TEXT PRIMARY KEY,
-        session_id INT NOT NULL,
-        FOREIGN KEY (session_id) REFERENCES sessions(session_id) ON DELETE CASCADE
-    );
+        CREATE TABLE photos (
+            photo_id text PRIMARY KEY,
+            session_id INT NOT NULL,
+            FOREIGN KEY (session_id) REFERENCES sessions(session_id) ON DELETE CASCADE
+        );
 
-    CREATE TABLE comments (
-        comment_id SERIAL PRIMARY KEY,
-        photo_id TEXT NOT NULL,
-        comment TEXT,
-        FOREIGN KEY (photo_id) REFERENCES photos(photo_id) ON DELETE CASCADE
-    );
+        CREATE TABLE guests (
+        	guest_id text primary key,
+        	name text default 'guest',
+        	session_id int not null,
+        	foreign key (session_id) references sessions(session_id) on delete cascade
+        );
 
-    CREATE TABLE reactions (
-        reaction_id SERIAL PRIMARY KEY,
-        photo_id TEXT NOT NULL,
-        smiley INT DEFAULT 0,
-        thumbs_up INT DEFAULT 0,
-        heart INT DEFAULT 0,
-        thumbs_down INT DEFAULT 0,
-        poop INT DEFAULT 0, 
-        FOREIGN KEY (photo_id) REFERENCES photos(photo_id) ON DELETE CASCADE
-    );
+        CREATE TABLE comments (
+            comment_id SERIAL PRIMARY KEY,
+            photo_id text NOT NULL,
+            guest_id text not null,
+            comment TEXT,
+            FOREIGN KEY (photo_id) REFERENCES photos(photo_id) ON DELETE cascade,
+            foreign key (guest_id) references guests(guest_id)
+        );
+
+        CREATE TABLE reactions (
+            reaction_id SERIAL PRIMARY KEY,
+            guest_id text not null,
+            photo_id text not null,
+            emoji_id text not null,
+            FOREIGN KEY (photo_id) REFERENCES photos(photo_id) ON DELETE cascade,
+            foreign key (guest_id) references guests(guest_id)
+        );
+
+        CREATE INDEX comments_photo_id_guest_id_index ON comments(photo_id, guest_id);
+        CREATE INDEX comments_photo_id_index ON comments(photo_id);
+        CREATE INDEX comments_guest_id_index ON comments(guest_id);
+
+        CREATE INDEX reactions_guest_id_photo_id_index ON reactions(guest_id, photo_id);
+        CREATE INDEX reactions_guest_id_index ON reactions(guest_id);
+        CREATE INDEX reactions_photo_id_index ON reactions(photo_id);
+
+        CREATE INDEX photos_session_id_index ON photos(session_id);
+
+        CREATE INDEX session_user_id_index ON sessions(user_id);
+
+        CREATE INDEX guests_session_id_index ON guests(session_id);
     """
 
     # Connect to the test database
