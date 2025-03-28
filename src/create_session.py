@@ -79,14 +79,15 @@ def create_session_handler(event, context, s3_client=None, db_connection=None):
             """
         
         insert_guest_query = """
-            INSERT INTO guests (guest_id, name, session_id)
+            INSERT INTO guests (guest_id, name, session_id, is_owner)
             VALUES (%s, %s, %s)
             """
         
         cursor.execute(insert_session_query, (user_id, password, url, expires_at))
         session_id = cursor.fetchone()[0]
 
-        cursor.execute(insert_guest_query, (user_id, "Session Owner", session_id) )
+        guest_id = f'{user_id}|{session_id}'
+        cursor.execute(insert_guest_query, (guest_id, "Session Owner", session_id, True) )
 
         for i in range(num_images):
             photo_id = f'{url}-image-{str(i)}'
