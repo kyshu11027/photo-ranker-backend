@@ -80,7 +80,7 @@ def create_session_handler(event, context, s3_client=None, db_connection=None):
         
         insert_guest_query = """
             INSERT INTO guests (guest_id, name, session_id, is_owner)
-            VALUES (%s, %s, %s)
+            VALUES (%s, %s, %s, %s)
             """
         
         cursor.execute(insert_session_query, (user_id, password, url, expires_at))
