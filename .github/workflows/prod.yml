@@ -62,7 +62,8 @@ jobs:
           CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
 
       - name: Zip src files and place in terraform directory
-        run: zip -r terraform/src.zip src/*
+        run: zip -r ../terraform/src.zip .
+        working-directory: ./src
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
