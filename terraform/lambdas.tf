@@ -106,10 +106,10 @@ resource "aws_lambda_function" "add_reaction" {
 
   environment {
     variables = {
-      DB_HOST      = aws_db_instance.photo_ranking_db.address
-      DB_NAME      = aws_db_instance.photo_ranking_db.db_name
-      DB_USER      = aws_db_instance.photo_ranking_db.username
-      DB_PASSWORD  = aws_db_instance.photo_ranking_db.password
+      DB_HOST     = aws_db_instance.photo_ranking_db.address
+      DB_NAME     = aws_db_instance.photo_ranking_db.db_name
+      DB_USER     = aws_db_instance.photo_ranking_db.username
+      DB_PASSWORD = aws_db_instance.photo_ranking_db.password
     }
   }
 }
@@ -125,10 +125,10 @@ resource "aws_lambda_function" "remove_reaction" {
 
   environment {
     variables = {
-      DB_HOST      = aws_db_instance.photo_ranking_db.address
-      DB_NAME      = aws_db_instance.photo_ranking_db.db_name
-      DB_USER      = aws_db_instance.photo_ranking_db.username
-      DB_PASSWORD  = aws_db_instance.photo_ranking_db.password
+      DB_HOST     = aws_db_instance.photo_ranking_db.address
+      DB_NAME     = aws_db_instance.photo_ranking_db.db_name
+      DB_USER     = aws_db_instance.photo_ranking_db.username
+      DB_PASSWORD = aws_db_instance.photo_ranking_db.password
     }
   }
 }
