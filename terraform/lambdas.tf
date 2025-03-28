@@ -14,8 +14,8 @@ resource "aws_lambda_function" "create_session" {
       DB_NAME        = aws_db_instance.photo_ranking_db.db_name
       DB_USER        = aws_db_instance.photo_ranking_db.username
       DB_PASSWORD    = aws_db_instance.photo_ranking_db.password
-      API_AUDIENCE = var.api_audience
-      AUTH0_DOMAIN = var.auth0_domain
+      API_AUDIENCE   = var.api_audience
+      AUTH0_DOMAIN   = var.auth0_domain
     }
   }
 }
@@ -36,8 +36,8 @@ resource "aws_lambda_function" "edit_session" {
       DB_NAME        = aws_db_instance.photo_ranking_db.db_name
       DB_USER        = aws_db_instance.photo_ranking_db.username
       DB_PASSWORD    = aws_db_instance.photo_ranking_db.password
-      API_AUDIENCE = var.api_audience
-      AUTH0_DOMAIN = var.auth0_domain
+      API_AUDIENCE   = var.api_audience
+      AUTH0_DOMAIN   = var.auth0_domain
     }
   }
 }
@@ -58,8 +58,8 @@ resource "aws_lambda_function" "get_session" {
       DB_NAME        = aws_db_instance.photo_ranking_db.db_name
       DB_USER        = aws_db_instance.photo_ranking_db.username
       DB_PASSWORD    = aws_db_instance.photo_ranking_db.password
-      API_AUDIENCE = var.api_audience
-      AUTH0_DOMAIN = var.auth0_domain
+      API_AUDIENCE   = var.api_audience
+      AUTH0_DOMAIN   = var.auth0_domain
     }
   }
 }
@@ -80,8 +80,8 @@ resource "aws_lambda_function" "delete_session" {
       DB_NAME        = aws_db_instance.photo_ranking_db.db_name
       DB_USER        = aws_db_instance.photo_ranking_db.username
       DB_PASSWORD    = aws_db_instance.photo_ranking_db.password
-      API_AUDIENCE = var.api_audience
-      AUTH0_DOMAIN = var.auth0_domain
+      API_AUDIENCE   = var.api_audience
+      AUTH0_DOMAIN   = var.auth0_domain
     }
   }
 }
@@ -118,10 +118,10 @@ resource "aws_lambda_function" "add_reaction" {
 
   environment {
     variables = {
-      DB_HOST     = aws_db_instance.photo_ranking_db.address
-      DB_NAME     = aws_db_instance.photo_ranking_db.db_name
-      DB_USER     = aws_db_instance.photo_ranking_db.username
-      DB_PASSWORD = aws_db_instance.photo_ranking_db.password
+      DB_HOST      = aws_db_instance.photo_ranking_db.address
+      DB_NAME      = aws_db_instance.photo_ranking_db.db_name
+      DB_USER      = aws_db_instance.photo_ranking_db.username
+      DB_PASSWORD  = aws_db_instance.photo_ranking_db.password
       API_AUDIENCE = var.api_audience
       AUTH0_DOMAIN = var.auth0_domain
     }
@@ -139,10 +139,10 @@ resource "aws_lambda_function" "remove_reaction" {
 
   environment {
     variables = {
-      DB_HOST     = aws_db_instance.photo_ranking_db.address
-      DB_NAME     = aws_db_instance.photo_ranking_db.db_name
-      DB_USER     = aws_db_instance.photo_ranking_db.username
-      DB_PASSWORD = aws_db_instance.photo_ranking_db.password
+      DB_HOST      = aws_db_instance.photo_ranking_db.address
+      DB_NAME      = aws_db_instance.photo_ranking_db.db_name
+      DB_USER      = aws_db_instance.photo_ranking_db.username
+      DB_PASSWORD  = aws_db_instance.photo_ranking_db.password
       API_AUDIENCE = var.api_audience
       AUTH0_DOMAIN = var.auth0_domain
     }
