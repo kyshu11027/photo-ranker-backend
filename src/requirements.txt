@@ -2,5 +2,5 @@ psycopg2-binary==2.9.9
 requests==2.31.0
 urllib3==1.25.10,<1.27 
 PyJWT==2.8.0
-cryptography==3.4.7 --only-binary=:all:
+cryptography==3.4.7
 setuptools_rust
