@@ -14,6 +14,8 @@ def create_session_handler(event, context, s3_client=None, db_connection=None):
     
     try:
         jwt = verify_token(event)
+        if "create:session" not in jwt["scope"]:
+            raise Exception("Unauthorized")
     except Exception as e:
         return {
             'statusCode': 401,

@@ -4,11 +4,14 @@ from uuid import uuid4
 from src.add_reaction import add_reaction_handler
 from src.remove_reaction import remove_reaction_handler
 
-def test_add_remove_reaction_lambda(db_connection, test_session, logger, load_sample_event):
+def test_add_remove_reaction_lambda(db_connection, test_user, test_session, logger, load_sample_event):
+    access_token, _ = test_user
     session_id, photo_id = test_session
     conn, cursor = db_connection
     TEST_GUEST_ID = 'TEST_GUEST_ID'
     test_event = load_sample_event('testEvent')
+    test_event["headers"]["Authorization"] = f"Bearer {access_token}"
+
     test_event['body'] = json.dumps({
         'guestId': TEST_GUEST_ID,
         'emojiId': 'smiley',

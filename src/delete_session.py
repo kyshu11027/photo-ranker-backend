@@ -10,6 +10,8 @@ def delete_session_handler(event, context, s3_client=None, db_connection=None):
     cors_headers = get_cors_headers(event)
     try:
         jwt = verify_token(event)
+        if "delete:session" not in jwt["scope"]:
+            raise Exception("Unauthorized")
     except Exception as e:
         return {
             'statusCode': 401,

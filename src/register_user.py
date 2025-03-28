@@ -6,7 +6,9 @@ from utils import get_cors_headers, verify_token
 def register_user_handler(event, context, db_connection=None):
     cors_headers = get_cors_headers(event)
     try:
-        verify_token(event)
+        jwt = verify_token(event)
+        if "add:session" not in jwt["scope"]:
+            raise Exception("Unauthorized")
     except Exception as e:
         return {
             'statusCode': 401,
