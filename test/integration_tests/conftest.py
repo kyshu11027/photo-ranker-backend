@@ -10,9 +10,6 @@ from boto3 import resource, client
 from src.utils import verify_token
 import sys
 
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), 'src')))
-
-
 @pytest.fixture(scope="session")
 def load_env():
     """Load environment variables for testing."""
