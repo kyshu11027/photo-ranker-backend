@@ -14,6 +14,8 @@ resource "aws_lambda_function" "create_session" {
       DB_NAME        = aws_db_instance.photo_ranking_db.db_name
       DB_USER        = aws_db_instance.photo_ranking_db.username
       DB_PASSWORD    = aws_db_instance.photo_ranking_db.password
+      API_AUDIENCE = var.api_audience
+      AUTH0_DOMAIN = var.auth0_domain
     }
   }
 }
@@ -29,9 +31,13 @@ resource "aws_lambda_function" "edit_session" {
 
   environment {
     variables = {
-      S3_BUCKET_NAME      = "${aws_s3_bucket.session_images.bucket}"
-      DYNAMODB_TABLE_NAME = "${aws_dynamodb_table.sessions.name}"
-      TERRAFORM_WORKSPACE = "${terraform.workspace}"
+      S3_BUCKET_NAME = aws_s3_bucket.session_images.bucket
+      DB_HOST        = aws_db_instance.photo_ranking_db.address
+      DB_NAME        = aws_db_instance.photo_ranking_db.db_name
+      DB_USER        = aws_db_instance.photo_ranking_db.username
+      DB_PASSWORD    = aws_db_instance.photo_ranking_db.password
+      API_AUDIENCE = var.api_audience
+      AUTH0_DOMAIN = var.auth0_domain
     }
   }
 }
@@ -47,9 +53,13 @@ resource "aws_lambda_function" "get_session" {
 
   environment {
     variables = {
-      S3_BUCKET_NAME      = "${aws_s3_bucket.session_images.bucket}"
-      DYNAMODB_TABLE_NAME = "${aws_dynamodb_table.sessions.name}"
-      TERRAFORM_WORKSPACE = "${terraform.workspace}"
+      S3_BUCKET_NAME = aws_s3_bucket.session_images.bucket
+      DB_HOST        = aws_db_instance.photo_ranking_db.address
+      DB_NAME        = aws_db_instance.photo_ranking_db.db_name
+      DB_USER        = aws_db_instance.photo_ranking_db.username
+      DB_PASSWORD    = aws_db_instance.photo_ranking_db.password
+      API_AUDIENCE = var.api_audience
+      AUTH0_DOMAIN = var.auth0_domain
     }
   }
 }
@@ -70,6 +80,8 @@ resource "aws_lambda_function" "delete_session" {
       DB_NAME        = aws_db_instance.photo_ranking_db.db_name
       DB_USER        = aws_db_instance.photo_ranking_db.username
       DB_PASSWORD    = aws_db_instance.photo_ranking_db.password
+      API_AUDIENCE = var.api_audience
+      AUTH0_DOMAIN = var.auth0_domain
     }
   }
 }
@@ -110,6 +122,8 @@ resource "aws_lambda_function" "add_reaction" {
       DB_NAME     = aws_db_instance.photo_ranking_db.db_name
       DB_USER     = aws_db_instance.photo_ranking_db.username
       DB_PASSWORD = aws_db_instance.photo_ranking_db.password
+      API_AUDIENCE = var.api_audience
+      AUTH0_DOMAIN = var.auth0_domain
     }
   }
 }
@@ -129,6 +143,8 @@ resource "aws_lambda_function" "remove_reaction" {
       DB_NAME     = aws_db_instance.photo_ranking_db.db_name
       DB_USER     = aws_db_instance.photo_ranking_db.username
       DB_PASSWORD = aws_db_instance.photo_ranking_db.password
+      API_AUDIENCE = var.api_audience
+      AUTH0_DOMAIN = var.auth0_domain
     }
   }
 }
