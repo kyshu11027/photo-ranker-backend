@@ -16,7 +16,10 @@ def delete_session_handler(event, context, s3_client=None, db_connection=None):
         return {
             'statusCode': 401,
             'headers': cors_headers,
-            'body': json.dumps(f'Failed to verify token: {str(e)}')
+            'body': json.dumps({
+                'success': False,
+                'message': f'Failed to verify token: {str(e)}'
+            })
         }
     
 

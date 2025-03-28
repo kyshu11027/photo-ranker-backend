@@ -20,7 +20,10 @@ def create_session_handler(event, context, s3_client=None, db_connection=None):
         return {
             'statusCode': 401,
             'headers': cors_headers,
-            'body': json.dumps(f'Failed to verify token: {str(e)}')
+            'body': json.dumps({
+                'success': False,
+                'message': f'Failed to verify token: {str(e)}'
+            })
         }
     
     if s3_client is None:
@@ -41,7 +44,9 @@ def create_session_handler(event, context, s3_client=None, db_connection=None):
         return {
             'statusCode': 400,
             'headers': cors_headers,
-            'body': json.dumps('Issue receiving event body')
+            'body': json.dumps({
+                'success': False, 
+                'message': 'Issue receiving event body'})
         }
 
     user_id = jwt['sub']  # Ensure consistency of session ownership
@@ -116,6 +121,7 @@ def create_session_handler(event, context, s3_client=None, db_connection=None):
                 'sessionId': session_id, 
                 'sessionUrl': url,
                 'imageIds': images,
+                'success': True
             })
         }
         

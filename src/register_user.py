@@ -7,13 +7,16 @@ def register_user_handler(event, context, db_connection=None):
     cors_headers = get_cors_headers(event)
     try:
         jwt = verify_token(event)
-        if "add:session" not in jwt["scope"]:
+        if "add:user" not in jwt["scope"]:
             raise Exception("Unauthorized")
     except Exception as e:
         return {
             'statusCode': 401,
             'headers': cors_headers,
-            'body': json.dumps(f'Failed to verify token: {str(e)}')
+            'body': json.dumps({
+                'success': False,
+                'message': f'Failed to verify token: {str(e)}'
+            })
         }
 
     DB_HOST = os.environ.get('DB_HOST', 'NONE')
@@ -41,7 +44,10 @@ def register_user_handler(event, context, db_connection=None):
         return {
             'statusCode': 400,
             'headers': cors_headers,
-            'body': json.dumps(f'Issue getting fields from payload: {str(e)}')
+            'body': json.dumps({
+                'success': False,    
+                'message': f'Issue getting fields from payload: {str(e)}'
+            })
         }
 
     created_connection = False
@@ -84,13 +90,19 @@ def register_user_handler(event, context, db_connection=None):
         return {
             'statusCode': 400,
             'headers': cors_headers,
-            'body': json.dumps(f'Issue with database: {str(e)}')
+            'body': json.dumps({
+                'success': False,
+                'message': f'Issue with database: {str(e)}'
+            })
         }
     except Exception as e:
         return {
             'statusCode': 400,
             'headers': cors_headers,
-            'body': json.dumps(f'Unexpected error: {str(e)}')
+            'body': json.dumps({
+                'success': False,
+                'message': f'Unexpected error: {str(e)}'
+            })
         } 
     finally:
         if 'cursor' in locals():  # Ensure cursor exists before closing

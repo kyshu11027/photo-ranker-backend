@@ -15,7 +15,10 @@ def add_reaction_handler(event, context, db_connection=None):
         return {
             'statusCode': 401,
             'headers': cors_headers,
-            'body': json.dumps(f'Failed to verify token: {str(e)}')
+            'body': json.dumps({
+                'success': False,
+                'message': f'Failed to verify token: {str(e)}'
+            })
         }
 
     DB_HOST = os.environ.get('DB_HOST', 'NONE')
