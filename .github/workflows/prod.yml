@@ -50,7 +50,7 @@ jobs:
         working-directory: ./src
 
       - name: Run tests
-        run: PYTHONPATH=src pytest
+        run: pytest
         env:
           DB_HOST: ${{ secrets.DB_HOST }}
           DB_NAME: ${{ secrets.DB_NAME }}

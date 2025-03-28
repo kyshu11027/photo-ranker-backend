@@ -8,6 +8,7 @@ import logging
 from dotenv import load_dotenv
 from boto3 import resource, client
 from src.utils import verify_token
+import sys
 
 @pytest.fixture(scope="session")
 def load_env():

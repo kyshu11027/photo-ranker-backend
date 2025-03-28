@@ -54,6 +54,22 @@ def register_user_handler(event, context, db_connection=None):
             created_connection = True
 
         cursor = connection.cursor()
+
+        # Check if the user_id already exists
+        check_user_query = "SELECT 1 FROM accounts WHERE user_id = %s"
+        cursor.execute(check_user_query, (user_id,))
+        existing_user = cursor.fetchone()
+
+        if existing_user:
+            return {
+                'statusCode': 200,
+                'headers': cors_headers,
+                'body': json.dumps({
+                    'success': True,
+                    'message': 'User ID already exists'
+                })
+            }
+        
         insert_user_query = """
             INSERT INTO accounts (user_id, email)
             VALUES (%s, %s)
