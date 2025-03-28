@@ -1,7 +1,7 @@
 import json
 import os
 import psycopg2
-from src.utils import get_cors_headers, verify_token
+from utils import get_cors_headers, verify_token
 
 def register_user_handler(event, context, db_connection=None):
     cors_headers = get_cors_headers(event)

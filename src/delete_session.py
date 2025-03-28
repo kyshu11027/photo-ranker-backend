@@ -3,7 +3,7 @@ import os
 import json
 import psycopg2
 from botocore.exceptions import ClientError
-from src.utils import get_cors_headers, verify_token
+from utils import get_cors_headers, verify_token
 
 
 def delete_session_handler(event, context, s3_client=None, db_connection=None):

@@ -6,7 +6,7 @@ from botocore.exceptions import ClientError
 import psycopg2
 import time
 import datetime
-from src.utils import get_cors_headers, verify_token
+from utils import get_cors_headers, verify_token
 
 def create_session_handler(event, context, s3_client=None, db_connection=None):
     # Get CORS headers

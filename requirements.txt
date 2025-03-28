@@ -8,3 +8,4 @@ psycopg2-binary
 PyJWT==2.8.0
 requests==2.31.0
 pytest-postgresql
+setuptools_rust

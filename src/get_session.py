@@ -2,7 +2,7 @@ import json
 import boto3
 import os
 from botocore.exceptions import ClientError
-from src.utils import get_cors_headers
+from utils import get_cors_headers
 
 def get_session_handler(event, context, s3_client=None, dynamodb=None):
     # Get CORS headers

@@ -1,7 +1,7 @@
 resource "aws_lambda_function" "create_session" {
   function_name    = "photo-ranker-create-session-${terraform.workspace}"
   role             = aws_iam_role.lambda_role.arn
-  handler          = "src/create_session.create_session_handler"
+  handler          = "create_session.create_session_handler"
   runtime          = "python3.9"
   timeout          = 5
   filename         = "src.zip"
@@ -21,7 +21,7 @@ resource "aws_lambda_function" "create_session" {
 resource "aws_lambda_function" "edit_session" {
   function_name    = "photo-ranker-edit-session-${terraform.workspace}"
   role             = aws_iam_role.lambda_role.arn
-  handler          = "src/edit_session.edit_session_handler"
+  handler          = "edit_session.edit_session_handler"
   runtime          = "python3.9"
   timeout          = 5
   filename         = "src.zip"
@@ -39,7 +39,7 @@ resource "aws_lambda_function" "edit_session" {
 resource "aws_lambda_function" "get_session" {
   function_name    = "photo-ranker-get-session-${terraform.workspace}"
   role             = aws_iam_role.lambda_role.arn
-  handler          = "src/get_session.get_session_handler"
+  handler          = "get_session.get_session_handler"
   runtime          = "python3.9"
   timeout          = 5
   filename         = "src.zip"
@@ -57,7 +57,7 @@ resource "aws_lambda_function" "get_session" {
 resource "aws_lambda_function" "delete_session" {
   function_name    = "photo-ranker-delete-session-${terraform.workspace}"
   role             = aws_iam_role.lambda_role.arn
-  handler          = "src/delete_session.delete_session_handler"
+  handler          = "delete_session.delete_session_handler"
   runtime          = "python3.9"
   timeout          = 5
   filename         = "src.zip"
@@ -77,7 +77,7 @@ resource "aws_lambda_function" "delete_session" {
 resource "aws_lambda_function" "register_user" {
   function_name    = "photo-ranker-register-user-${terraform.workspace}"
   role             = aws_iam_role.lambda_role.arn
-  handler          = "src/register_user.register_user_handler"
+  handler          = "register_user.register_user_handler"
   runtime          = "python3.9"
   timeout          = 5
   filename         = "src.zip"
