@@ -22,7 +22,7 @@ def test_create_session_lambda(load_sample_event, test_user, db_connection, s3_b
     })
 
     s3_client, _ = s3_bucket
-    conn , cursor = db_connection
+    conn, cursor = db_connection
 
     # Call Lambda function handler
     test_return_value = create_session_handler(
@@ -63,14 +63,6 @@ def test_create_session_lambda(load_sample_event, test_user, db_connection, s3_b
         assert image_ids[0].get('id', '') == photo_id
     except Exception as e:
         pytest.fail(f"Failed to retrieve photo from Postgres: {str(e)}")
-    
-    try:
-        # Assert that the rows were written to the reactions table
-        cursor.execute("SELECT * FROM reactions WHERE photo_id = %s", (photo_id,))
-        rows = cursor.fetchall()
-        assert len(rows) == 1
-    except Exception as e:
-        pytest.fail(f"Failed to retrieve reaction from Postgres: {str(e)}")
 
 
 """
@@ -78,7 +70,7 @@ def test_create_session_lambda(load_sample_event, test_user, db_connection, s3_b
 """
 def test_delete_session_lambda(db_connection, test_user, s3_bucket, logger, load_sample_event):
     TEST_PASSWORD = 'test_pass'
-    conn , cursor = db_connection  # Get database connection and cursor
+    conn, cursor = db_connection  # Get database connection and cursor
     access_token, _ = test_user  # Retrieve test user token
 
     # Load test event for creating a session

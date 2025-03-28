@@ -2,10 +2,10 @@ import json
 import pytest
 from src.register_user import register_user_handler
 
+"""
+Tests user registration by inserting a user into the database and verifying its existence.
+"""
 def test_register_user_in_postgres(db_connection, test_user, logger, load_sample_event):
-    """
-    Tests user registration by inserting a user into the database and verifying its existence.
-    """
 
     conn, cursor = db_connection  # Get database connection and cursor
 

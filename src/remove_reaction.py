@@ -1,30 +1,33 @@
 import json
 import os
 import psycopg2
-from utils import get_cors_headers, verify_token
+from src.utils import get_cors_headers, verify_token
 
-def register_user_handler(event, context, db_connection=None):
+def remove_reaction_handler(event, context, db_connection=None):
+    # Get CORS headers
     cors_headers = get_cors_headers(event)
     try:
         jwt = verify_token(event)
-        if "add:session" not in jwt["scope"]:
+        if "add:reaction" not in jwt["scope"]:
             raise Exception("Unauthorized")
+        
     except Exception as e:
         return {
             'statusCode': 401,
             'headers': cors_headers,
             'body': json.dumps(f'Failed to verify token: {str(e)}')
         }
-
     DB_HOST = os.environ.get('DB_HOST', 'NONE')
     DB_NAME = os.environ.get('DB_NAME', 'NONE')
     DB_USER = os.environ.get('DB_USER', 'NONE')
     DB_PASSWORD = os.environ.get('DB_PASSWORD', 'NONE')
-    
+
+    # Log the entire event for debugging
     print("Received event:", json.dumps(event))
+    
     try:
         body = json.loads(event['body'])
-    except Exception as e:
+    except Exception:
         return {
             'statusCode': 400,
             'headers': cors_headers,
@@ -33,77 +36,72 @@ def register_user_handler(event, context, db_connection=None):
                 'message': f'Issue receiving event body: {str(e)}'
             })
         }
-
+    
     try:
-        user_id = body['userId']
-        email = body['email']
+        guest_id = body['guestId']
+        emoji_id = body['emojiId']
+        photo_id = body['photoId']
     except KeyError as e:
         return {
             'statusCode': 400,
             'headers': cors_headers,
-            'body': json.dumps(f'Issue getting fields from payload: {str(e)}')
+            'body': json.dumps({
+                'success': False,
+                'message': f'Issue with payload: {str(e)}'
+            })
         }
-
+    
     created_connection = False
     try:
         if db_connection is None:
-            connection = psycopg2.connect(
+            db_connection = psycopg2.connect(
                 host=DB_HOST,
                 database=DB_NAME,
                 user=DB_USER,
                 password=DB_PASSWORD
             )
-            created_connection = True
-
-        cursor = connection.cursor()
-
-        # Check if the user_id already exists
-        check_user_query = "SELECT 1 FROM accounts WHERE user_id = %s"
-        cursor.execute(check_user_query, (user_id,))
-        existing_user = cursor.fetchone()
-
-        if existing_user:
-            return {
-                'statusCode': 200,
-                'headers': cors_headers,
-                'body': json.dumps({
-                    'success': True,
-                    'message': 'User ID already exists'
-                })
-            }
+            created_connection = True  # Mark that we created this connection
         
-        insert_user_query = """
-            INSERT INTO accounts (user_id, email)
-            VALUES (%s, %s)
+        cursor = db_connection.cursor()
+
+        delete_reaction_query = """
+            DELETE FROM reactions WHERE guest_id=%s AND emoji_id=%s AND photo_id=%s;
             """
-        cursor.execute(insert_user_query, (user_id, email))
-        connection.commit()
+        
+        cursor.execute(delete_reaction_query, (guest_id, emoji_id, photo_id))
+        db_connection.commit()
+
+        return {
+            'statusCode': 200,
+            'headers': cors_headers,
+            'body': json.dumps({
+                'success': True,
+            })
+        }
+
     except psycopg2.Error as e:
-        if connection:
-            connection.rollback()
+        if db_connection:
+            db_connection.rollback()
         return {
             'statusCode': 400,
             'headers': cors_headers,
-            'body': json.dumps(f'Issue with database: {str(e)}')
+            'body': json.dumps({
+                'success': False,
+                'message': f'Issue with database: {str(e)}'
+            })
         }
     except Exception as e:
         return {
             'statusCode': 400,
             'headers': cors_headers,
-            'body': json.dumps(f'Unexpected error: {str(e)}')
-        } 
+            'body': json.dumps({
+                'success': False,
+                'message': f'Unexpected error: {str(e)}'
+            })
+        }
     finally:
         if 'cursor' in locals():  # Ensure cursor exists before closing
             cursor.close()
         if created_connection and db_connection is not None:  # Only close if we created it
             db_connection.close()
 
-    
-    return {
-        'statusCode': 200,
-        'headers': cors_headers,
-        'body': json.dumps({
-            'success': True,
-            'userId': user_id
-        })
-    }

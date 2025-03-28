@@ -14,6 +14,8 @@ def create_session_handler(event, context, s3_client=None, db_connection=None):
     
     try:
         jwt = verify_token(event)
+        if "create:session" not in jwt["scope"]:
+            raise Exception("Unauthorized")
     except Exception as e:
         return {
             'statusCode': 401,
@@ -75,10 +77,6 @@ def create_session_handler(event, context, s3_client=None, db_connection=None):
             VALUES (%s, %s)
             RETURNING photo_id;
             """
-        insert_reaction_query = """
-            INSERT INTO reactions (photo_id)
-            VALUES (%s)
-            """
         
         cursor.execute(insert_session_query, (user_id, password, url, expires_at))
         session_id = cursor.fetchone()[0]
@@ -90,7 +88,6 @@ def create_session_handler(event, context, s3_client=None, db_connection=None):
             if not photo_id:
                 raise Exception(f'Failed to insert photo {str(photo_id)}')
             
-            cursor.execute(insert_reaction_query, (photo_id,))
             photo_ids.append(photo_id)
 
         db_connection.commit()
