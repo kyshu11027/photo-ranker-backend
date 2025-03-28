@@ -165,6 +165,7 @@ def db_connection(postgresql):
         	guest_id text primary key,
         	name text default 'guest',
         	session_id int not null,
+            is_owner BOOLEAN DEFAULT FALSE,
         	foreign key (session_id) references sessions(session_id) on delete cascade
         );
 

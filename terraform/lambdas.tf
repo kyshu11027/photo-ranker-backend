@@ -110,7 +110,7 @@ resource "aws_lambda_function" "register_user" {
 resource "aws_lambda_function" "add_reaction" {
   function_name    = "photo-ranker-add-reaction-${terraform.workspace}"
   role             = aws_iam_role.lambda_role.arn
-  handler          = "src/add_reaction.add_reaction_handler"
+  handler          = "add_reaction.add_reaction_handler"
   runtime          = "python3.9"
   timeout          = 5
   filename         = "src.zip"
@@ -131,7 +131,7 @@ resource "aws_lambda_function" "add_reaction" {
 resource "aws_lambda_function" "remove_reaction" {
   function_name    = "photo-ranker-remove-reaction-${terraform.workspace}"
   role             = aws_iam_role.lambda_role.arn
-  handler          = "src/remove_reaction.remove_reaction_handler"
+  handler          = "remove_reaction.remove_reaction_handler"
   runtime          = "python3.9"
   timeout          = 5
   filename         = "src.zip"
