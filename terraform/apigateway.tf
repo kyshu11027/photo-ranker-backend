@@ -41,7 +41,7 @@ resource "aws_api_gateway_resource" "remove_reaction_resource" {
 }
 
 locals {
-  allowed_origins = terraform.workspace == "dev" ? "https://pickpix.vercel.app,http://localhost:3000" : "https://pickpix.vercel.app"
+  allowed_origins = terraform.workspace == "dev" ? "https://pickpix.vercel.app,https://pickpix.kevinyshu.work,http://localhost:3000" : "https://pickpix.vercel.app,https://pickpix.kevinyshu.work"
   allowed_headers = "Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token"
 }
 

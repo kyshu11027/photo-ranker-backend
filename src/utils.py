@@ -8,7 +8,7 @@ def get_cors_headers(event):
     
     # Set allowed origins based on environment
     workspace = os.environ.get('TERRAFORM_WORKSPACE', 'dev')
-    allowed_origins = ["https://pickpix.vercel.app"]
+    allowed_origins = ["https://pickpix.vercel.app", "https://pickpix.kevinyshu.work"]
     if workspace == 'dev':
         allowed_origins.append("http://localhost:3000")
     
